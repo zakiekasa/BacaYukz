@@ -1,6 +1,49 @@
 import React, { useState } from 'react';
+import { Link } from '@inertiajs/react';
 
-const Dashboard = () => {
+export type BookItem = {
+    id: number;
+    title: string;
+    cover: string;
+    description: string;
+    chaptersCount: number;
+    createdAt: string;
+};
+
+interface DashboardProps {
+    books?: BookItem[];
+    totalBooks?: number;
+}
+
+const Dashboard = ({ books, totalBooks }: DashboardProps) => {
+    // Default mock data untuk pengujian statis jika props tidak dikirim
+    const defaultBooks: BookItem[] = [
+        {
+            id: 1,
+            title: 'Belajar Pemrograman Web untuk Pemula',
+            cover: 'https://placehold.co/100x140/1e3a8a/FFFFFF?text=Belajar\nWeb&font=Montserrat',
+            description: 'Panduan praktis belajar HTML, CSS, dan JavaScript dari nol untuk membangun website modern.',
+            chaptersCount: 5,
+            createdAt: '2026-06-08',
+        },
+        {
+            id: 2,
+            title: 'Kisah Kancil Modern abad 21',
+            cover: 'https://placehold.co/100x140/f28b50/FFFFFF?text=Kancil\nAbad+21&font=Montserrat',
+            description: 'Fabel jenaka yang diadaptasi dengan teknologi modern untuk anak-anak kreatif masa kini.',
+            chaptersCount: 2,
+            createdAt: '2026-06-07',
+        }
+    ];
+
+    // State agar data list dan statistiknya interaktif
+    const [booksList, setBooksList] = useState<BookItem[]>(books || defaultBooks);
+
+    const handleDeleteBook = (id: number) => {
+        if (confirm('Apakah Anda yakin ingin menghapus buku ini?')) {
+            setBooksList(prev => prev.filter(b => b.id !== id));
+        }
+    };
     // State untuk mengontrol buka-tutup sidebar di perangkat mobile/tablet
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -24,8 +67,8 @@ const Dashboard = () => {
       */}
             <aside
                 className={`bg-white rounded-4 shadow-sm p-4 flex-column z-3 transition-all ${isSidebarOpen
-                        ? 'd-flex position-fixed top-0 start-0 bottom-0 m-3 shadow-lg'
-                        : 'd-none d-lg-flex m-3'
+                    ? 'd-flex position-fixed top-0 start-0 bottom-0 m-3 shadow-lg'
+                    : 'd-none d-lg-flex m-3'
                     }`}
                 style={{ width: '260px' }}
             >
@@ -50,20 +93,34 @@ const Dashboard = () => {
                 {/* Menu Items */}
                 <nav className="d-flex flex-column gap-2">
                     {/* Menu Dashboard (Aktif) */}
-                    <a href="#" className="d-flex align-items-center p-2 rounded-3 text-dark text-decoration-none fw-bold mb-1">
+                    <Link href="/dashboard" className="d-flex align-items-center p-2 rounded-3 text-dark text-decoration-none fw-bold mb-1">
                         <div className="text-white rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm" style={{ width: '40px', height: '40px', backgroundColor: '#f28b50' }}>
                             <i className="fa-solid fa-house"></i>
                         </div>
                         Dashboard
-                    </a>
-
+                    </Link>
+ 
                     {/* Menu Buku (Tidak Aktif) */}
-                    <a href="#" className="d-flex align-items-center p-2 rounded-3 text-secondary text-decoration-none fw-semibold">
+                    <Link href="/dashboard/books" className="d-flex align-items-center p-2 rounded-3 text-secondary text-decoration-none fw-semibold">
                         <div className="bg-light text-secondary rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm border border-light" style={{ width: '40px', height: '40px' }}>
                             <i className="fa-solid fa-building"></i>
                         </div>
                         Buku
-                    </a>
+                    </Link>
+
+                    {/* Menu Buku (Tidak Aktif) */}
+                    <Link
+                        href="/logout"
+                        method="post"
+                        as="button"
+                        className="d-flex align-items-center p-2 rounded-3 text-secondary text-decoration-none fw-semibold"
+                    >
+                        <div className="bg-light text-secondary rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm border border-light" style={{ width: '40px', height: '40px' }}>
+                            <i className="fa-solid fa-home"></i>
+                        </div>
+                        Logout
+                    </Link>
+
                 </nav>
             </aside>
 
@@ -114,7 +171,7 @@ const Dashboard = () => {
                     <div className="col-12 col-md-4">
                         <div className="rounded-4 p-4 text-white shadow-sm h-100 d-flex flex-column justify-content-center bg-success">
                             <i className="fa-solid fa-book-open fs-3 mb-3"></i>
-                            <h2 className="fw-bold mb-1">1</h2>
+                            <h2 className="fw-bold mb-1">{totalBooks ?? booksList.length}</h2>
                             <div style={{ fontSize: '0.9rem' }}>Total Buku</div>
                         </div>
                     </div>
@@ -130,45 +187,82 @@ const Dashboard = () => {
 
                 {/* Table Section */}
                 <div className="bg-white rounded-4 shadow-sm p-3 p-lg-4 mb-4">
-                    <h5 className="fw-bold text-dark mb-4">Projects</h5>
+                    <h5 className="fw-bold text-dark mb-4">Buku Buatan Saya</h5>
 
-                    <div className="table-responsive">
-                        <table className="table align-middle border-light text-nowrap" style={{ minWidth: '600px' }}>
-                            <thead>
-                                <tr className="border-bottom">
-                                    <th className="text-secondary fw-semibold small pb-3" style={{ width: '5%', borderBottomWidth: '2px' }}>NO</th>
-                                    <th className="text-secondary fw-semibold small pb-3" style={{ width: '15%', borderBottomWidth: '2px' }}>COVER</th>
-                                    <th className="text-secondary fw-semibold small pb-3" style={{ width: '60%', borderBottomWidth: '2px' }}>JUDUL</th>
-                                    <th className="text-secondary fw-semibold small pb-3" style={{ width: '20%', borderBottomWidth: '2px' }}>AKSI</th>
-                                </tr>
-                            </thead>
+                    {booksList.length === 0 ? (
+                        <div className="text-center py-5">
+                            <div className="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '70px', height: '70px' }}>
+                                <i className="fa-solid fa-book-open fs-3 text-secondary"></i>
+                            </div>
+                            <h6 className="fw-bold text-dark mb-1">Belum ada buku</h6>
+                            <p className="text-secondary small mb-3">Unggah karya orisinal Anda untuk melihatnya di sini.</p>
+                            <Link href="/dashboard/books" className="btn btn-primary btn-sm rounded-3 px-4 py-2" style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}>
+                                <i className="fa-solid fa-plus me-2"></i>Upload Buku
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="table-responsive">
+                            <table className="table align-middle border-light text-nowrap" style={{ minWidth: '600px' }}>
+                                <thead>
+                                    <tr className="border-bottom">
+                                        <th className="text-secondary fw-semibold small pb-3" style={{ width: '5%', borderBottomWidth: '2px' }}>NO</th>
+                                        <th className="text-secondary fw-semibold small pb-3" style={{ width: '15%', borderBottomWidth: '2px' }}>COVER</th>
+                                        <th className="text-secondary fw-semibold small pb-3" style={{ width: '60%', borderBottomWidth: '2px' }}>INFO BUKU</th>
+                                        <th className="text-secondary fw-semibold small pb-3 text-end" style={{ width: '20%', borderBottomWidth: '2px' }}>AKSI</th>
+                                    </tr>
+                                </thead>
 
-                            <tbody className="border-0">
-                                <tr>
-                                    <td className="text-secondary py-3">1</td>
-                                    <td className="py-3">
-                                        <img
-                                            src="https://placehold.co/100x140/1e3a8a/FFFFFF?text=Belajar\nWeb&font=Montserrat"
-                                            alt="Cover"
-                                            className="rounded-2 shadow-sm"
-                                            style={{ width: '55px', height: '80px', objectFit: 'cover' }}
-                                        />
-                                    </td>
-                                    <td className="text-secondary fw-medium py-3 text-wrap">
-                                        Belajar Pemrograman Web untuk pemula
-                                    </td>
-                                    <td className="py-3">
-                                        <button className="btn btn-success btn-sm me-2 rounded-3 px-2 py-1 shadow-sm" style={{ backgroundColor: '#4ade80', borderColor: '#4ade80' }}>
-                                            <i className="fa-solid fa-pen text-white"></i>
-                                        </button>
-                                        <button className="btn btn-danger btn-sm rounded-3 px-2 py-1 shadow-sm" style={{ backgroundColor: '#f87171', borderColor: '#f87171' }}>
-                                            <i className="fa-solid fa-trash text-white"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                <tbody className="border-0">
+                                    {booksList.map((book, index) => (
+                                        <tr key={book.id}>
+                                            <td className="text-secondary py-3">{index + 1}</td>
+                                            <td className="py-3">
+                                                <img
+                                                    src={book.cover}
+                                                    alt={book.title}
+                                                    className="rounded-2 shadow-sm border border-light"
+                                                    style={{ width: '55px', height: '80px', objectFit: 'cover' }}
+                                                />
+                                            </td>
+                                            <td className="py-3 text-wrap">
+                                                <div className="text-dark fw-bold mb-1">{book.title}</div>
+                                                <p className="text-secondary small mb-1 line-clamp-2" style={{ fontSize: '0.85rem', maxWidth: '400px' }}>
+                                                    {book.description}
+                                                </p>
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <span className="badge bg-light text-dark border border-light small font-monospace">
+                                                        <i className="fa-solid fa-list-ol text-secondary me-1"></i>
+                                                        {book.chaptersCount} Bab
+                                                    </span>
+                                                    <span className="text-muted small" style={{ fontSize: '0.75rem' }}>
+                                                        Diunggah: {book.createdAt}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 text-end">
+                                                <a 
+                                                    href="#" 
+                                                    className="btn btn-light btn-sm rounded-3 me-2 border border-light shadow-sm"
+                                                    onClick={(e) => e.preventDefault()}
+                                                    title="Buka File"
+                                                >
+                                                    <i className="fa-solid fa-eye text-secondary"></i>
+                                                </a>
+                                                <button 
+                                                    className="btn btn-danger btn-sm rounded-3 border-0 shadow-sm" 
+                                                    style={{ backgroundColor: '#f87171' }}
+                                                    onClick={() => handleDeleteBook(book.id)}
+                                                    title="Hapus Buku"
+                                                >
+                                                    <i className="fa-solid fa-trash text-white"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
 
             </main>
