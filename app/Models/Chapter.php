@@ -11,6 +11,10 @@ class Chapter extends Model
     use HasSlug;
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'is_draft' => 'boolean',
+    ];
+
     public function getSlugOptions() : SlugOptions {
         return SlugOptions::create()->generateSlugsFrom('title')->saveSlugsTo('slug');
     }

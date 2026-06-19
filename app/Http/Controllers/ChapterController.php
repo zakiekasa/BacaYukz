@@ -15,14 +15,14 @@ class ChapterController extends Controller
             return redirect()->route('dashboard.likes');
         }
         $books = Book::where('user_id', auth()->id())->get();
-        return Inertia::render('Chapter', ['books' => $books]);
+        return Inertia::render('Dashboard/ChapterCreate', ['books' => $books]);
     }
-
     public function store(Request $request) {
         $validatedData = $request->validate([
             "book_id" => "required|exists:books,id",
             "title" => "required|string|max:100",
-            "content" => "required|string"
+            "content" => "required|string",
+            "is_draft" => "nullable|boolean",
         ]);
 
         $book = Book::findOrFail($validatedData['book_id']);
@@ -32,18 +32,21 @@ class ChapterController extends Controller
 
         $validatedData['content'] = Purifier::clean($validatedData['content']);
         $validatedData['user_id'] = auth()->id();
+        $validatedData['is_draft'] = filter_var($request->input('is_draft'), FILTER_VALIDATE_BOOLEAN);
 
         $chapter = Chapter::create($validatedData);
 
-        $likers = $book->likedByUsers;
-        foreach ($likers as $liker) {
-            \App\Models\Notification::create([
-                'user_id' => $liker->id,
-                'book_id' => $book->id,
-                'chapter_id' => $chapter->id,
-                'message' => "Buku '{$book->title}' telah menambahkan chapter baru: '{$chapter->title}'",
-                'is_read' => false,
-            ]);
+        if (!$chapter->is_draft) {
+            $likers = $book->likedByUsers;
+            foreach ($likers as $liker) {
+                \App\Models\Notification::create([
+                    'user_id' => $liker->id,
+                    'book_id' => $book->id,
+                    'chapter_id' => $chapter->id,
+                    'message' => "Buku '{$book->title}' telah menambahkan chapter baru: '{$chapter->title}'",
+                    'is_read' => false,
+                ]);
+            }
         }
 
         return back()->with(['message' => 'Chapter created successfully', "success" => true]);
@@ -54,7 +57,7 @@ class ChapterController extends Controller
             abort(403);
         }
         $chapters = $book->chapters()->orderBy('id', 'asc')->get();
-        return Inertia::render('BookChapters', [
+        return Inertia::render('Dashboard/BookChapters', [
             'book' => [
                 'id' => $book->id,
                 'title' => $book->title,
@@ -67,6 +70,7 @@ class ChapterController extends Controller
                     'title' => $chapter->title,
                     'slug' => $chapter->slug,
                     'view' => $chapter->view,
+                    'is_draft' => $chapter->is_draft,
                     'createdAt' => $chapter->created_at->format('Y-m-d'),
                 ];
             })
@@ -78,11 +82,12 @@ class ChapterController extends Controller
             abort(403);
         }
         $chapter->load('book');
-        return Inertia::render('ChapterEdit', [
+        return Inertia::render('Dashboard/ChapterEdit', [
             'chapter' => [
                 'id' => $chapter->id,
                 'title' => $chapter->title,
                 'content' => $chapter->content,
+                'is_draft' => $chapter->is_draft,
                 'book' => [
                     'id' => $chapter->book->id,
                     'title' => $chapter->book->title,
@@ -98,12 +103,31 @@ class ChapterController extends Controller
         }
         $validatedData = $request->validate([
             "title" => "required|string|max:100",
-            "content" => "required|string"
+            "content" => "required|string",
+            "is_draft" => "nullable|boolean",
         ]);
 
         $validatedData['content'] = Purifier::clean($validatedData['content']);
+        $newIsDraft = filter_var($request->input('is_draft'), FILTER_VALIDATE_BOOLEAN);
+
+        $wasDraft = $chapter->is_draft;
+        $validatedData['is_draft'] = $newIsDraft;
 
         $chapter->update($validatedData);
+
+        if ($wasDraft && !$newIsDraft) {
+            $book = $chapter->book;
+            $likers = $book->likedByUsers;
+            foreach ($likers as $liker) {
+                \App\Models\Notification::create([
+                    'user_id' => $liker->id,
+                    'book_id' => $book->id,
+                    'chapter_id' => $chapter->id,
+                    'message' => "Buku '{$book->title}' telah menambahkan chapter baru: '{$chapter->title}'",
+                    'is_read' => false,
+                ]);
+            }
+        }
 
         return redirect()->route('dashboard.books.chapters', $chapter->book_id)->with([
             'message' => 'Chapter updated successfully',

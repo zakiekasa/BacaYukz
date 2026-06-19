@@ -342,3 +342,74 @@ test('an authenticated user can view and update their profile settings', functio
 
     expect(Hash::check('newpassword123', $user->refresh()->password))->toBeTrue();
 });
+
+test('author can create a chapter as a draft and it is hidden from the public', function () {
+    $author = User::factory()->create(['role' => 'penulis']);
+    $reader = User::factory()->create(['role' => 'pembaca']);
+
+    $book = Book::create([
+        'user_id' => $author->id,
+        'title' => 'My Book',
+        'description' => 'Book description.',
+        'cover' => 'cover.jpg',
+    ]);
+
+    // Reader likes the book
+    $this->actingAs($reader)->post(route('dashboard.books.like', $book->id));
+
+    // Author creates a chapter as a draft
+    $response = $this->actingAs($author)->post(route('dashboard.chapter.store'), [
+        'book_id' => $book->id,
+        'title' => 'Draft Chapter',
+        'content' => 'Content of draft.',
+        'is_draft' => true,
+    ]);
+    $response->assertSessionHasNoErrors();
+
+    // Verify it is in database as draft
+    $this->assertDatabaseHas('chapters', [
+        'title' => 'Draft Chapter',
+        'is_draft' => true,
+    ]);
+
+    $chapter = Chapter::where('title', 'Draft Chapter')->first();
+
+    // Verify NO notification was sent to reader
+    $this->assertDatabaseMissing('notifications', [
+        'user_id' => $reader->id,
+        'chapter_id' => $chapter->id,
+    ]);
+
+    // Verify chapter is NOT loaded in public book detail view
+    $bookDetailResponse = $this->actingAs($reader)->get(route('book.show', $book->slug));
+    $loadedChapters = $bookDetailResponse->original->getData()['page']['props']['book']['chapters'];
+    expect($loadedChapters)->toHaveCount(0);
+
+    // Verify reader gets 404 when directly visiting draft chapter
+    $this->actingAs($reader)->get(route('chapter.show', [$book->slug, $chapter->slug]))
+        ->assertStatus(404);
+
+    // Author edits the chapter to publish it
+    $updateResponse = $this->actingAs($author)->put(route('dashboard.chapter.update', $chapter->id), [
+        'title' => 'Published Chapter',
+        'content' => 'Updated published content.',
+        'is_draft' => false,
+    ]);
+    $updateResponse->assertSessionHasNoErrors();
+
+    // Verify it is now published
+    expect($chapter->refresh()->is_draft)->toBeFalse();
+
+    // Verify notification was now sent to reader
+    $this->assertDatabaseHas('notifications', [
+        'user_id' => $reader->id,
+        'chapter_id' => $chapter->id,
+        'message' => "Buku '{$book->title}' telah menambahkan chapter baru: '{$chapter->refresh()->title}'",
+    ]);
+
+    // Verify chapter is now visible to the reader
+    $bookDetailResponse2 = $this->actingAs($reader)->get(route('book.show', $book->slug));
+    $loadedChapters2 = $bookDetailResponse2->original->getData()['page']['props']['book']['chapters'];
+    expect($loadedChapters2)->toHaveCount(1);
+    expect($loadedChapters2[0]['title'])->toBe('Published Chapter');
+});

@@ -19,7 +19,7 @@ class BookController extends Controller
         }
         $books = Book::where('user_id', auth()->id())->get();
         $genres = \App\Models\Genre::all();
-        return Inertia::render('Book', [
+        return Inertia::render('Dashboard/BookCreate', [
             'books' => $books,
             'genres' => $genres,
         ]);
@@ -79,7 +79,7 @@ class BookController extends Controller
         $totalChapters = (int) $books->sum('chapters_count');
         $totalReaders = (int) ($books->sum('view') + $books->sum('chapters_sum_view'));
 
-        return Inertia::render('dashboard', [
+        return Inertia::render('Dashboard/Dashboard', [
             'books' => $formattedBooks,
             'totalBooks' => $totalBooks,
             'totalChapters' => $totalChapters,
@@ -95,7 +95,7 @@ class BookController extends Controller
         $book->load('genres');
         $genres = \App\Models\Genre::all();
 
-        return Inertia::render('BookEdit', [
+        return Inertia::render('Dashboard/BookEdit', [
             'book' => [
                 'id' => $book->id,
                 'title' => $book->title,
@@ -186,7 +186,7 @@ class BookController extends Controller
             ];
         });
 
-        return Inertia::render('dashboardLikes', [
+        return Inertia::render('Dashboard/DashboardLikes', [
             'books' => $formattedBooks,
         ]);
     }

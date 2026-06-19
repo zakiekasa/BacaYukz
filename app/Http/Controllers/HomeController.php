@@ -18,11 +18,11 @@ class HomeController extends Controller
             'genres' => $genres,
         ]);
     }
-
     public function bookDetail(Book $book) {
-        $book->load(['chapters' => function ($query) {
-            $query->orderBy('created_at', 'desc');
-        }, 'genres', 'user']);
+        $book->load(['genres', 'user']);
+        
+        // Only load published chapters for the public book detail view
+        $book->setRelation('chapters', $book->chapters()->where('is_draft', false)->orderBy('created_at', 'desc')->get());
 
         $isLiked = false;
         if (auth()->check()) {
@@ -36,14 +36,23 @@ class HomeController extends Controller
     }
 
     public function chapterDetail(Book $book, Chapter $chapter) {
+        // If chapter is a draft, only allow the book owner to view it
+        if ($chapter->is_draft) {
+            if (!auth()->check() || $book->user_id !== auth()->id()) {
+                abort(404);
+            }
+        }
+
         $chapter->increment('view');
 
         $previousChapter = Chapter::where('book_id', $book->id)
+            ->where('is_draft', false)
             ->where('id', '<', $chapter->id)
             ->orderBy('id', 'desc')
             ->first();
 
         $nextChapter = Chapter::where('book_id', $book->id)
+            ->where('is_draft', false)
             ->where('id', '>', $chapter->id)
             ->orderBy('id', 'asc')
             ->first();
@@ -55,7 +64,6 @@ class HomeController extends Controller
             'next_chapter' => $nextChapter
         ]);
     }
-
     public function readNotification(\App\Models\Notification $notification) {
         if ($notification->user_id !== auth()->id()) {
             abort(403);

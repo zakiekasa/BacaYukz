@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 class RegisterController extends Controller
 {
     public function index() {
-        return Inertia::render('register');
+        return Inertia::render('Auth/Register');
     }
     public function store(Request $request) {
         $validated = $request->validate([
