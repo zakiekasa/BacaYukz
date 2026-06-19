@@ -10,7 +10,7 @@ class Book extends Model
 {
     use HasSlug;
 
-    protected $fillable = ["title", "slug", "description", "cover"];
+    protected $fillable = ["user_id", "title", "slug", "description", "cover"];
 
     public function getSlugOptions() : SlugOptions {
         return SlugOptions::create()->generateSlugsFrom('title')->saveSlugsTo('slug');
@@ -21,8 +21,23 @@ class Book extends Model
         return 'slug';
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function chapters()
     {
         return $this->hasMany(Chapter::class);
+    }
+
+    public function genres()
+    {
+        return $this->belongsToMany(Genre::class);
+    }
+
+    public function likedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'book_likes')->withTimestamps();
     }
 }

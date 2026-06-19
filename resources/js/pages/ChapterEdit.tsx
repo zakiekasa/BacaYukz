@@ -11,17 +11,18 @@ interface BookItem {
     slug: string;
 }
 
-interface ChapterProps {
-    books: BookItem[];
-}
-
-interface ChapterForm {
-    book_id: string;
+interface ChapterDetail {
+    id: number;
     title: string;
     content: string;
+    book: BookItem;
 }
 
-export default function Chapter({ books = [] }: ChapterProps) {
+interface ChapterEditProps {
+    chapter: ChapterDetail;
+}
+
+export default function ChapterEdit({ chapter }: ChapterEditProps) {
     const { flash }: any = usePage().props;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -40,25 +41,14 @@ export default function Chapter({ books = [] }: ChapterProps) {
         }
     }, [flash]);
 
-    const { data, setData, post, processing, errors, reset } = useForm<ChapterForm>({
-        book_id: '',
-        title: '',
-        content: '',
+    const { data, setData, put, processing, errors } = useForm({
+        title: chapter.title,
+        content: chapter.content,
     });
-
-    useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const bookIdParam = urlParams.get('book_id');
-        if (bookIdParam) {
-            setData('book_id', bookIdParam);
-        }
-    }, []);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post('/dashboard/chapters', {
-            onSuccess: () => reset('title', 'content')
-        });
+        put(`/dashboard/chapters/${chapter.id}`);
     };
 
     return (
@@ -86,9 +76,9 @@ export default function Chapter({ books = [] }: ChapterProps) {
                         </button>
                         <div>
                             <div className="text-secondary mb-1" style={{ fontSize: '0.9rem' }}>
-                                Halaman <span className="mx-1">/</span> <span className="text-dark">Upload Karya</span>
+                                Halaman <span className="mx-1">/</span> <Link href="/dashboard" className="text-decoration-none text-secondary">Dashboard</Link> <span className="mx-1">/</span> <Link href={`/dashboard/books/${chapter.book.id}/chapters`} className="text-decoration-none text-secondary">Kelola Bab</Link> <span className="mx-1">/</span> <span className="text-dark">Edit Bab</span>
                             </div>
-                            <h4 className="fw-bold text-dark mb-0">Tambah Bab Baru</h4>
+                            <h4 className="fw-bold text-dark mb-0">Edit Bab: {chapter.title}</h4>
                         </div>
                     </div>
                 </div>
@@ -102,26 +92,20 @@ export default function Chapter({ books = [] }: ChapterProps) {
                                 <div className="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '60px', height: '60px', color: '#f28b50' }}>
                                     <i className="fa-solid fa-file-pen fs-4" style={{ color: '#f28b50' }}></i>
                                 </div>
-                                <h5 className="fw-bold text-dark mb-1">Tambah Bab Baru</h5>
-                                <p className="text-secondary small">Tulis naskah bab baru cerita Anda langsung di editor modern di bawah ini.</p>
+                                <h5 className="fw-bold text-dark mb-1">Edit Bab</h5>
+                                <p className="text-secondary small">Perbarui naskah atau judul bab cerita Anda menggunakan editor di bawah.</p>
                             </div>
 
                             <form onSubmit={handleSubmit}>
-                                {/* Pilih Buku Induk */}
+                                {/* Buku Induk (Read Only) */}
                                 <div className="mb-3">
-                                    <label className="form-label fw-semibold text-dark small">Pilih Buku Induk <span className="text-danger">*</span></label>
-                                    <select
-                                        className={`form-select rounded-3 py-2.5 text-secondary border-light bg-body-tertiary ${errors.book_id && 'is-invalid'}`}
-                                        required
-                                        value={data.book_id}
-                                        onChange={e => setData('book_id', e.target.value)}
-                                    >
-                                        <option value="">-- Pilih Buku Anda --</option>
-                                        {books.map((e: BookItem) => (
-                                            <option key={e.id} value={e.id}>{e.title}</option>
-                                        ))}
-                                    </select>
-                                    {errors.book_id && <div className="invalid-feedback">{errors.book_id}</div>}
+                                    <label className="form-label fw-semibold text-dark small">Buku Induk</label>
+                                    <input
+                                        type="text"
+                                        className="form-control rounded-3 py-2.5 text-secondary border-light bg-body-secondary"
+                                        disabled
+                                        value={chapter.book.title}
+                                    />
                                 </div>
 
                                 {/* Judul Bab */}
@@ -151,16 +135,24 @@ export default function Chapter({ books = [] }: ChapterProps) {
                                     {errors.content && <div className="text-danger small mt-1">{errors.content}</div>}
                                 </div>
 
-                                {/* Submit Button */}
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary w-100 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                                    style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
-                                    disabled={processing}
-                                >
-                                    <i className="fa-solid fa-cloud-arrow-up"></i>
-                                    {processing ? 'Sedang Menerbitkan...' : 'Terbitkan Bab Sekarang'}
-                                </button>
+                                {/* Action Buttons */}
+                                <div className="d-flex gap-3">
+                                    <Link
+                                        href={`/dashboard/books/${chapter.book.id}/chapters`}
+                                        className="btn btn-light w-50 py-2.5 rounded-3 fw-semibold border border-light text-dark text-center"
+                                    >
+                                        Batal
+                                    </Link>
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary w-50 py-2.5 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                                        style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
+                                        disabled={processing}
+                                    >
+                                        <i className="fa-solid fa-save"></i>
+                                        {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>

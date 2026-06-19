@@ -1,6 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/home/Navbar';
+import DisqusComments from '../../components/home/DisqusComments';
+import { Notyf } from 'notyf';
+import 'notyf/notyf.min.css';
 
 type Book = {
     id: number;
@@ -33,6 +36,21 @@ type ChapterProps = {
 
 export default function ChapterDetail({ book, chapter, previous_chapter, next_chapter }: ChapterProps) {
     const [scrollPercent, setScrollPercent] = useState(0);
+
+    const handleShare = () => {
+        if (typeof window !== 'undefined') {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => {
+                    const notyf = new Notyf({
+                        position: { x: 'right', y: 'top' }
+                    });
+                    notyf.success('Link chapter berhasil disalin!');
+                })
+                .catch(() => {
+                    alert('Gagal menyalin link.');
+                });
+        }
+    };
 
     useEffect(() => {
         const handleScroll = () => {
@@ -158,19 +176,29 @@ export default function ChapterDetail({ book, chapter, previous_chapter, next_ch
                     <h1 className="display-4 fw-bold text-dark mb-3" style={{ letterSpacing: '-1px', lineHeight: '1.2' }}>
                         {chapter.title}
                     </h1>
-                    <div className="d-flex flex-wrap align-items-center text-secondary gap-3 small border-bottom border-light pb-4">
-                        <div className="d-flex align-items-center">
-                            <i className="fa-regular fa-calendar me-2"></i>
-                            {formatDate(chapter.created_at)}
+                    <div className="d-flex flex-wrap align-items-center justify-content-between text-secondary gap-3 small border-bottom border-light pb-4">
+                        <div className="d-flex flex-wrap align-items-center gap-3">
+                            <div className="d-flex align-items-center">
+                                <i className="fa-regular fa-calendar me-2"></i>
+                                {formatDate(chapter.created_at)}
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <i className="fa-regular fa-eye me-2"></i>
+                                {chapter.view} kali dibaca
+                            </div>
+                            <div className="d-flex align-items-center">
+                                <i className="fa-regular fa-clock me-2"></i>
+                                {calculateReadingTime(chapter.content)} menit membaca
+                            </div>
                         </div>
-                        <div className="d-flex align-items-center">
-                            <i className="fa-regular fa-eye me-2"></i>
-                            {chapter.view} kali dibaca
-                        </div>
-                        <div className="d-flex align-items-center">
-                            <i className="fa-regular fa-clock me-2"></i>
-                            {calculateReadingTime(chapter.content)} menit membaca
-                        </div>
+                        <button
+                            onClick={handleShare}
+                            className="btn btn-sm btn-outline-primary px-3 py-1 rounded-pill d-inline-flex align-items-center gap-2 shadow-sm border border-primary-subtle bg-light-subtle"
+                            style={{ transition: 'all 0.2s ease' }}
+                        >
+                            <i className="fa-regular fa-share-from-square"></i>
+                            <span>Bagikan</span>
+                        </button>
                     </div>
                 </header>
 
@@ -236,6 +264,16 @@ export default function ChapterDetail({ book, chapter, previous_chapter, next_ch
                         </div>
                     </div>
                 </footer>
+
+                {/* Disqus Comments Section */}
+                <DisqusComments
+                    shortname="bacayukz"
+                    config={{
+                        url: typeof window !== 'undefined' ? `${window.location.origin}/book/${book.slug}/${chapter.slug}` : '',
+                        identifier: `chapter-${chapter.id}`,
+                        title: `${chapter.title} - ${book.title}`,
+                    }}
+                />
             </div>
         </div>
     );

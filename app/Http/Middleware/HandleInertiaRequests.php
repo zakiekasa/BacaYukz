@@ -39,7 +39,9 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $request->user() ? array_merge($request->user()->toArray(), [
+                    'notifications' => $request->user()->notifications()->latest()->take(20)->get(),
+                ]) : null,
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),

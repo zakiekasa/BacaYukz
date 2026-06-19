@@ -18,14 +18,18 @@ class RegisterController extends Controller
             'name' => 'required|string|min:2|max:100|regex:/^[a-zA-Z\s]+$/',
             'email' => 'required|email:rfc,dns|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'password_confirmation' => 'required|string'
+            'password_confirmation' => 'required|string',
+            'role' => 'required|string|in:penulis,pembaca',
         ]);
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
         ]);
+
+        auth()->login($user);
 
         return redirect()->route('dashboard');
             

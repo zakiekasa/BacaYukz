@@ -6,7 +6,8 @@ type FormFields = {
     name: string,
     email: string,
     password: string,
-    password_confirmation: string
+    password_confirmation: string,
+    role: string
 }
 
 const Register = () => {
@@ -14,14 +15,15 @@ const Register = () => {
         name: '',
         email: '',
         password: '',
-        password_confirmation: ''
+        password_confirmation: '',
+        role: 'pembaca'
     })
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
 
         post('/register', {
             onSuccess: () => {
-                reset('name', 'email', 'password', 'password_confirmation')
+                reset('name', 'email', 'password', 'password_confirmation', 'role')
             }
         })
 
@@ -98,6 +100,24 @@ const Register = () => {
                                     {errors.password_confirmation &&
                                         <div className="invalid-feedback">
                                             {errors.password_confirmation}
+                                        </div>
+                                    }
+                                </div>
+
+                                {/* Pilihan Peran (Role) */}
+                                <div className="mb-3">
+                                    <select
+                                        className={`form-select py-2.5 text-secondary ${errors.role && 'is-invalid'}`}
+                                        value={data.role}
+                                        onChange={(e) => { setData('role', e.target.value) }}
+                                        required
+                                    >
+                                        <option value="pembaca">Daftar Sebagai Pembaca (Reader)</option>
+                                        <option value="penulis">Daftar Sebagai Penulis (Writer)</option>
+                                    </select>
+                                    {errors.role &&
+                                        <div className="invalid-feedback">
+                                            {errors.role}
                                         </div>
                                     }
                                 </div>
