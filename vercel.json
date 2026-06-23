@@ -18,8 +18,8 @@
       "dest": "/public/$1/$2"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/public/favicon.ico"
+      "src": "/(favicon.ico|favicon.svg|apple-touch-icon.png)",
+      "dest": "/public/$1"
     },
     {
       "src": "/robots.txt",
