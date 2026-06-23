@@ -155,7 +155,7 @@ class HomeController extends Controller
         $books = Book::where('user_id', $user->id)->with('genres')->latest()->get();
         
         $user->avatar_url = $user->avatar 
-            ? (str_starts_with($user->avatar, 'http') ? $user->avatar : asset('storage/avatars/' . $user->avatar)) 
+            ? ((str_starts_with($user->avatar, 'http') || str_starts_with($user->avatar, 'data:')) ? $user->avatar : asset('storage/avatars/' . $user->avatar)) 
             : null;
 
         return Inertia::render('Home/Author', [

@@ -31,5 +31,5 @@ export function sortBooks(books: BookItem[], sortBy: SortOption): BookItem[] {
  */
 export function resolveCoverUrl(cover: string | null, bookId: number): string {
     if (!cover) return `https://picsum.photos/300/400?random=${bookId + 10}`;
-    return cover.startsWith('http') ? cover : `/storage/covers/${cover}`;
+    return (cover.startsWith('http') || cover.startsWith('data:')) ? cover : `/storage/covers/${cover}`;
 }

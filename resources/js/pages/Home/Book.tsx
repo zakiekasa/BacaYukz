@@ -116,7 +116,7 @@ export default function BookDetail({ book, isLiked }: BookProps) {
         }
     };
     const coverUrl = book.cover
-        ? book.cover.startsWith('http')
+        ? (book.cover.startsWith('http') || book.cover.startsWith('data:'))
             ? book.cover
             : `/storage/covers/${book.cover}`
         : `https://picsum.photos/300/400?random=${book.id + 10}`;

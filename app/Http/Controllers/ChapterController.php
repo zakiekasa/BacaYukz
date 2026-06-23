@@ -62,7 +62,7 @@ class ChapterController extends Controller
                 'id' => $book->id,
                 'title' => $book->title,
                 'slug' => $book->slug,
-                'cover' => $book->cover ? (str_starts_with($book->cover, 'http') ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
+                'cover' => $book->cover ? ((str_starts_with($book->cover, 'http') || str_starts_with($book->cover, 'data:')) ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
             ],
             'chapters' => $chapters->map(function ($chapter) {
                 return [

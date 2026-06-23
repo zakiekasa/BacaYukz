@@ -2,7 +2,7 @@ import { Link } from '@inertiajs/react';
 
 export default function Book({ id, title, genre, views, cover, href, authorName, authorAvatar, authorId }: { id: number; title: string; genre?: string; views?: number; cover?: string | null; href?: string; authorName?: string; authorAvatar?: string | null; authorId?: number }) {
     const coverUrl = cover
-        ? (cover.startsWith('http') ? cover : `/storage/covers/${cover}`)
+        ? ((cover.startsWith('http') || cover.startsWith('data:')) ? cover : `/storage/covers/${cover}`)
         : `https://picsum.photos/300/400?random=${id + 10}`;
 
     return (

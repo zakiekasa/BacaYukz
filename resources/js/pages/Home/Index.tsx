@@ -35,7 +35,7 @@ const Home = ({ popularBooks = [] }: IndexProps) => {
     const bookCollage = React.useMemo(() => {
         return popularBooks.slice(0, 4).map((book, idx) => {
             const coverUrl = book.cover
-                ? (book.cover.startsWith('http') ? book.cover : `/storage/covers/${book.cover}`)
+                ? ((book.cover.startsWith('http') || book.cover.startsWith('data:')) ? book.cover : `/storage/covers/${book.cover}`)
                 : `https://picsum.photos/300/400?random=${book.id + 10}`;
             return {
                 id: book.id,

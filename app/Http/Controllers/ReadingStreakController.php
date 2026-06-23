@@ -125,7 +125,7 @@ class ReadingStreakController extends Controller
             'user' => [
                 'name' => auth()->user()->name,
                 'avatar' => auth()->user()->avatar 
-                    ? (str_starts_with(auth()->user()->avatar, 'http') ? auth()->user()->avatar : asset('storage/avatars/' . auth()->user()->avatar)) 
+                    ? ((str_starts_with(auth()->user()->avatar, 'http') || str_starts_with(auth()->user()->avatar, 'data:')) ? auth()->user()->avatar : asset('storage/avatars/' . auth()->user()->avatar)) 
                     : null,
             ]
         ]);
