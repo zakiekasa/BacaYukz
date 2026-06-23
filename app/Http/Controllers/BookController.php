@@ -35,12 +35,19 @@ class BookController extends Controller
 
         if($request->hasFile('cover')) {
             $file = $request->file('cover');
-            $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
-            $manager = new ImageManager(new Driver());
-            $image = $manager->decode($file);
-            $image->cover(720, 1152);
-            $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
-            Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+            
+            if (extension_loaded('gd')) {
+                $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
+                $manager = new ImageManager(new Driver());
+                $image = $manager->decode($file);
+                $image->cover(720, 1152);
+                $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
+                Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+            } else {
+                $extension = $file->getClientOriginalExtension() ?: 'png';
+                $fileName = Str::slug($validated['title']) . '-' . time() . '.' . $extension;
+                $file->storeAs('covers', $fileName, 'public');
+            }
 
             $book = Book::create([
                 'user_id' => auth()->id(),
@@ -132,12 +139,19 @@ class BookController extends Controller
             }
 
             $file = $request->file('cover');
-            $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
-            $manager = new ImageManager(new Driver());
-            $image = $manager->decode($file);
-            $image->cover(720, 1152);
-            $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
-            Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+            
+            if (extension_loaded('gd')) {
+                $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
+                $manager = new ImageManager(new Driver());
+                $image = $manager->decode($file);
+                $image->cover(720, 1152);
+                $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
+                Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+            } else {
+                $extension = $file->getClientOriginalExtension() ?: 'png';
+                $fileName = Str::slug($validated['title']) . '-' . time() . '.' . $extension;
+                $file->storeAs('covers', $fileName, 'public');
+            }
 
             $validated['cover'] = $fileName;
         } else {

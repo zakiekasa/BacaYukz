@@ -67,12 +67,19 @@ class ProfileController extends Controller
             }
 
             $file = $request->file('avatar');
-            $fileName = Str::slug($validated['name']) . '-' . time() . '.webp';
-            $manager = new ImageManager(new Driver());
-            $image = $manager->decode($file);
-            $image->cover(300, 300);
-            $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
-            Storage::disk('public')->put('avatars/' . $fileName, $encoded->toString());
+            
+            if (extension_loaded('gd')) {
+                $fileName = Str::slug($validated['name']) . '-' . time() . '.webp';
+                $manager = new ImageManager(new Driver());
+                $image = $manager->decode($file);
+                $image->cover(300, 300);
+                $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
+                Storage::disk('public')->put('avatars/' . $fileName, $encoded->toString());
+            } else {
+                $extension = $file->getClientOriginalExtension() ?: 'png';
+                $fileName = Str::slug($validated['name']) . '-' . time() . '.' . $extension;
+                $file->storeAs('avatars', $fileName, 'public');
+            }
 
             $user->avatar = $fileName;
         }
