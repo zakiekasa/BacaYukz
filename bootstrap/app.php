@@ -6,7 +6,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 
-// Set Vercel-specific writable cache directories
+// Set Vercel-specific writable cache and storage directories
 if (getenv('VERCEL')) {
     foreach ([
         'APP_SERVICES_CACHE' => '/tmp/services.php',
@@ -14,10 +14,29 @@ if (getenv('VERCEL')) {
         'APP_CONFIG_CACHE' => '/tmp/config.php',
         'APP_ROUTES_CACHE' => '/tmp/routes.php',
         'APP_EVENTS_CACHE' => '/tmp/events.php',
+        'LARAVEL_STORAGE_PATH' => '/tmp/storage',
     ] as $key => $val) {
         putenv("{$key}={$val}");
         $_ENV[$key] = $val;
         $_SERVER[$key] = $val;
+    }
+
+    $storagePath = '/tmp/storage';
+    foreach ([
+        $storagePath,
+        $storagePath . '/framework',
+        $storagePath . '/framework/cache',
+        $storagePath . '/framework/sessions',
+        $storagePath . '/framework/views',
+        $storagePath . '/logs',
+        $storagePath . '/app',
+        $storagePath . '/app/public',
+        $storagePath . '/app/public/covers',
+        $storagePath . '/app/public/avatars',
+    ] as $dir) {
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
     }
 }
 
@@ -49,24 +68,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })->create();
 
 if (getenv('VERCEL')) {
-    $storagePath = '/tmp/storage';
-    foreach ([
-        $storagePath,
-        $storagePath . '/framework',
-        $storagePath . '/framework/cache',
-        $storagePath . '/framework/sessions',
-        $storagePath . '/framework/views',
-        $storagePath . '/logs',
-        $storagePath . '/app',
-        $storagePath . '/app/public',
-        $storagePath . '/app/public/covers',
-        $storagePath . '/app/public/avatars',
-    ] as $dir) {
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-    }
-    $app->useStoragePath($storagePath);
+    $app->useStoragePath('/tmp/storage');
 }
 
 return $app;
