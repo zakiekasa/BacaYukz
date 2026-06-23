@@ -34,7 +34,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Throwable $e) {
+            header('Content-Type: text/plain', true, 500);
+            echo "EXCEPTION DIAGNOSTIC:\n";
+            echo get_class($e) . ": " . $e->getMessage() . "\n\n";
+            echo "STACK TRACE:\n" . $e->getTraceAsString() . "\n\n";
+            if ($prev = $e->getPrevious()) {
+                echo "PREVIOUS EXCEPTION:\n";
+                echo get_class($prev) . ": " . $prev->getMessage() . "\n\n";
+                echo "PREVIOUS STACK TRACE:\n" . $prev->getTraceAsString() . "\n\n";
+            }
+            exit;
+        });
     })->create();
 
 if (getenv('VERCEL')) {
@@ -46,6 +57,10 @@ if (getenv('VERCEL')) {
         $storagePath . '/framework/sessions',
         $storagePath . '/framework/views',
         $storagePath . '/logs',
+        $storagePath . '/app',
+        $storagePath . '/app/public',
+        $storagePath . '/app/public/covers',
+        $storagePath . '/app/public/avatars',
     ] as $dir) {
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
