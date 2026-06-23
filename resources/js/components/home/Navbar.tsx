@@ -1,6 +1,11 @@
 import { usePage, Link, router } from '@inertiajs/react';
 import React, { useState, useEffect, useRef } from 'react';
 
+/**
+ * Navbar component for the public-facing pages.
+ * Displays navigation links, search bar, unread notification counts with a dropdown,
+ * and a theme toggler (light/dark mode).
+ */
 export default function Navbar() {
     const { auth } = usePage().props as any;
     const [searchQuery, setSearchQuery] = useState('');
@@ -10,6 +15,7 @@ export default function Navbar() {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [theme, setTheme] = useState('light');
 
+    // Sync theme settings with localStorage and bootstrap theme attributes on load
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -18,6 +24,9 @@ export default function Navbar() {
         }
     }, []);
 
+    /**
+     * Toggles the theme between light and dark modes.
+     */
     const toggleTheme = () => {
         const nextTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(nextTheme);
@@ -43,17 +52,26 @@ export default function Navbar() {
         };
     }, []);
 
+    /**
+     * Mark a notification as read and close dropdown.
+     */
     const handleNotificationClick = (id: number) => {
         setIsNotificationOpen(false);
         router.post(`/notifications/${id}/read`);
     };
 
+    /**
+     * Mark all notifications of the user as read.
+     */
     const handleMarkAllAsRead = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         router.post('/notifications/read-all');
     };
 
+    /**
+     * Formats notification timestamp to a user-friendly time-ago format.
+     */
     const formatTimeAgo = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -68,10 +86,13 @@ export default function Navbar() {
         return `${days} hari yang lalu`;
     };
 
+    /**
+     * Handles keyword submission on search action.
+     */
     const handleSearchSubmit = (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         if (searchQuery.trim() !== '') {
-            router.get(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+            router.get(`/books?search=${encodeURIComponent(searchQuery.trim())}`);
         }
     };
 
@@ -110,9 +131,24 @@ export default function Navbar() {
                 <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navbarSupportedContent">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0 gap-3 pt-3 pt-lg-0">
                         <li className="nav-item">
-                            <Link className="nav-link text-dark" href="/">Home</Link>
+                            <Link className="nav-link text-dark" href="/">Beranda</Link>
                         </li>
-                        <li className="nav-item"><a className="nav-link text-dark" href="/#kategori">Category</a></li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link text-dark" href="/books">Buku</Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link text-dark" href="/communities">Komunitas</Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link text-dark" href="/leaderboard">Leaderboard</Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link text-dark" href="/download">Unduh</Link>
+                        </li>
                     </ul>
 
                     {/* Right Links & Buttons */}
@@ -164,7 +200,7 @@ export default function Navbar() {
                                                     <button
                                                         onClick={handleMarkAllAsRead}
                                                         className="btn btn-link text-primary p-0 text-decoration-none small fw-semibold"
-                                                        style={{ fontSize: '0.75rem', color: '#f28b50' }}
+                                                        style={{ fontSize: '0.75rem', color: '#FF5A00' }}
                                                     >
                                                         Tandai semua dibaca
                                                     </button>
@@ -185,7 +221,7 @@ export default function Navbar() {
                                                             style={{
                                                                 cursor: 'pointer',
                                                                 transition: 'background-color 0.15s ease',
-                                                                backgroundColor: !notif.is_read ? 'rgba(242, 139, 80, 0.08)' : undefined
+                                                                backgroundColor: !notif.is_read ? 'rgba(255, 90, 0, 0.08)' : undefined
                                                             }}
                                                         >
                                                             <div className={`text-dark ${!notif.is_read ? 'fw-bold' : ''}`} style={{ lineHeight: '1.4', fontSize: '0.85rem' }}>
@@ -210,7 +246,7 @@ export default function Navbar() {
                             <Link href="/login" className="text-dark text-decoration-none fw-bold small my-1 my-lg-0">Login</Link>
                         )}
 
-                        <form onSubmit={handleSearchSubmit} className="d-flex align-items-center gap-2">
+                        <div className="d-flex align-items-center gap-2">
                             {/* Theme Toggle Button */}
                             <button
                                 type="button"
@@ -221,32 +257,7 @@ export default function Navbar() {
                             >
                                 <i className={`fa-solid ${theme === 'light' ? 'fa-moon text-secondary' : 'fa-sun text-warning'} fs-5`}></i>
                             </button>
-
-                            {isSearchOpen && (
-                                <input
-                                    type="text"
-                                    className="form-control form-control-sm rounded-pill border-light shadow-sm px-3 animate-fade-in"
-                                    placeholder="Cari judul / deskripsi..."
-                                    value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                    style={{ width: '170px' }}
-                                    autoFocus
-                                />
-                            )}
-                            <button
-                                type="button"
-                                className="btn btn-light rounded-circle shadow-sm px-2 py-1"
-                                onClick={() => {
-                                    if (isSearchOpen && searchQuery.trim() !== '') {
-                                        handleSearchSubmit();
-                                    } else {
-                                        setIsSearchOpen(!isSearchOpen);
-                                    }
-                                }}
-                            >
-                                <i className="fa-solid fa-search"></i>
-                            </button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>

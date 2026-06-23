@@ -224,5 +224,103 @@ class BookController extends Controller
 
         return back()->with(['success' => true, 'message' => $message]);
     }
+
+    public function history() {
+        $userId = auth()->id();
+        
+        $logs = \App\Models\ReadingLog::where('user_id', $userId)
+            ->whereNotNull('chapter_id')
+            ->with(['chapter.book.user', 'chapter.book.genres'])
+            ->get();
+
+        $history = $logs->groupBy(function($log) {
+            return $log->chapter->book_id ?? null;
+        })
+        ->filter(function($logs, $bookId) {
+            return !empty($bookId) && $logs->first()->chapter && $logs->first()->chapter->book;
+        })
+        ->map(function($logs) {
+            $firstLog = $logs->first();
+            $book = $firstLog->chapter->book;
+            $totalDurationSeconds = $logs->sum('duration_seconds');
+            $lastRead = $logs->max('updated_at');
+
+            return [
+                'id' => $book->id,
+                'title' => $book->title,
+                'slug' => $book->slug,
+                'cover' => $book->cover ? (str_starts_with($book->cover, 'http') ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
+                'description' => $book->description,
+                'total_minutes' => round($totalDurationSeconds / 60, 1),
+                'last_read_at' => $lastRead ? $lastRead->diffForHumans() : null,
+                'last_read_date' => $logs->max('read_date'),
+                'authorName' => $book->user?->name,
+                'genres' => $book->genres->map(fn($g) => $g->name)->toArray(),
+            ];
+        })
+        ->sortByDesc('last_read_date')
+        ->values()
+        ->all();
+
+        return Inertia::render('Dashboard/DashboardHistory', [
+            'history' => $history,
+        ]);
+    }
+
+    public function quizManage($chapterId) {
+        $chapter = \App\Models\Chapter::with('quiz.questions')->findOrFail($chapterId);
+        $book = $chapter->book;
+        
+        if ($book->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return Inertia::render('Dashboard/QuizManage', [
+            'chapter' => [
+                'id' => $chapter->id,
+                'title' => $chapter->title,
+                'slug' => $chapter->slug,
+            ],
+            'book' => [
+                'id' => $book->id,
+                'title' => $book->title,
+                'slug' => $book->slug,
+            ],
+            'quiz' => $chapter->quiz,
+        ]);
+    }
+
+    public function quizStore(Request $request, $chapterId) {
+        $chapter = \App\Models\Chapter::findOrFail($chapterId);
+        $book = $chapter->book;
+        if ($book->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'questions' => 'required|array|min:1',
+            'questions.*.question_text' => 'required|string',
+            'questions.*.option_a' => 'required|string',
+            'questions.*.option_b' => 'required|string',
+            'questions.*.option_c' => 'required|string',
+            'questions.*.option_d' => 'required|string',
+            'questions.*.correct_option' => 'required|in:a,b,c,d',
+        ]);
+
+        // Find or create quiz
+        $quiz = $chapter->quiz ?: new \App\Models\Quiz();
+        $quiz->chapter_id = $chapter->id;
+        $quiz->title = $validated['title'];
+        $quiz->save();
+
+        // Sync questions
+        $quiz->questions()->delete();
+        foreach ($validated['questions'] as $q) {
+            $quiz->questions()->create($q);
+        }
+
+        return redirect()->route('dashboard.books.chapters', $book->id)->with(['success' => true, 'message' => 'Kuis berhasil disimpan.']);
+    }
 }
 

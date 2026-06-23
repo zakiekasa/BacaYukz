@@ -52,7 +52,7 @@ export default function ChapterEdit({ chapter }: ChapterEditProps) {
                                 className="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
                                 style={{ width: '60px', height: '60px' }}
                             >
-                                <i className="fa-solid fa-file-pen fs-4" style={{ color: '#f28b50' }} />
+                                <i className="fa-solid fa-file-pen fs-4" style={{ color: '#FF5A00' }} />
                             </div>
                             <h5 className="fw-bold text-dark mb-1">Edit Bab</h5>
                             <p className="text-secondary small">
@@ -69,7 +69,7 @@ export default function ChapterEdit({ chapter }: ChapterEditProps) {
                                     className="form-control rounded-3 text-secondary border-light bg-body-secondary"
                                     disabled
                                     value={chapter.book.title}
-                                />
+                                    />
                             </div>
 
                             {/* Judul Bab */}
@@ -129,7 +129,7 @@ export default function ChapterEdit({ chapter }: ChapterEditProps) {
                                 <button
                                     type="submit"
                                     className="btn btn-primary w-50 py-2 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                                    style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
+                                    style={{ backgroundColor: '#FF5A00', borderColor: '#FF5A00' }}
                                     disabled={processing}
                                 >
                                     <i className="fa-solid fa-save" />

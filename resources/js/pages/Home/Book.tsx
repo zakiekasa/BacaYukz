@@ -30,6 +30,7 @@ type UserType = {
     instagram?: string | null;
     twitter?: string | null;
     saweria?: string | null;
+    avatar?: string | null;
 };
 
 type BookProps = {
@@ -173,7 +174,10 @@ export default function BookDetail({ book, isLiked }: BookProps) {
                 .chapter-card:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-                    border-color: #2b5876;
+                    border-color: #FF5A00;
+                }
+                .hover-opacity:hover {
+                    opacity: 0.8;
                 }
             `}</style>
 
@@ -259,11 +263,21 @@ export default function BookDetail({ book, isLiked }: BookProps) {
                                 <span className="text-muted d-block small fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
                                     Penulis
                                 </span>
-                                <div className="d-flex align-items-center gap-2">
-                                    <span className="fw-semibold text-dark" style={{ fontSize: '0.95rem' }}>
-                                        {book.user?.name ?? 'Anonim'}
-                                    </span>
-                                </div>
+                                {book.user ? (
+                                    <Link href={`/author/${book.user.id}`} className="d-flex align-items-center gap-2 text-decoration-none text-dark hover-opacity">
+                                        <img
+                                            src={book.user.avatar ? (book.user.avatar.startsWith('http') ? book.user.avatar : `/storage/avatars/${book.user.avatar}`) : 'https://www.gravatar.com/avatar/?d=mp&s=40'}
+                                            alt={book.user.name}
+                                            className="rounded-circle object-fit-cover shadow-sm border border-white border-2"
+                                            style={{ width: '32px', height: '32px' }}
+                                        />
+                                        <span className="fw-semibold" style={{ fontSize: '0.95rem' }}>
+                                            {book.user.name}
+                                        </span>
+                                    </Link>
+                                ) : (
+                                    <span className="fw-semibold text-dark" style={{ fontSize: '0.95rem' }}>Anonim</span>
+                                )}
                             </div>
                             <div className="mb-3">
                                 <span className="text-muted d-block small fw-bold text-uppercase mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
@@ -363,7 +377,7 @@ export default function BookDetail({ book, isLiked }: BookProps) {
                         <div className="mb-4">
                             <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3">
                                 <h4 className="fw-bold mb-0">
-                                    <span style={{ color: '#2b5876' }}>Chapter</span> List
+                                    <span style={{ color: '#FF5A00' }}>Chapter</span> List
                                 </h4>
                                 <div style={{ width: '200px' }}>
                                     <select
@@ -391,7 +405,7 @@ export default function BookDetail({ book, isLiked }: BookProps) {
                                                 href={`/book/${book.slug}/${chapter.slug}`}
                                                 className="chapter-card card border-0 bg-light rounded-2 text-decoration-none"
                                                 style={{
-                                                    borderRight: isFirst ? '4px solid #0d6efd' : 'none',
+                                                    borderRight: isFirst ? '4px solid #FF5A00' : 'none',
                                                 }}
                                             >
                                                 <div className="card-body p-3 d-flex align-items-center gap-3">

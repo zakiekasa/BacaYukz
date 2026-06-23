@@ -42,7 +42,7 @@ const DashboardLikes = ({ books = [] }: DashboardLikesProps) => {
             text: 'Anda tidak akan lagi menyukai buku ini.',
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#f28b50',
+            confirmButtonColor: '#FF5A00',
             cancelButtonColor: '#cbd5e1',
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText: 'Batal',

@@ -10,8 +10,17 @@ use App\Http\Controllers\ProfileController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/books', [HomeController::class, 'books'])->name('books.index');
 Route::get('/book/{book:slug}', [HomeController::class, 'bookDetail'])->name('book.show');
+Route::post('/chapter/{chapter:id}/quiz/submit', [HomeController::class, 'quizSubmit'])->name('chapter.quiz.submit')->middleware('auth');
 Route::get('/book/{book:slug}/{chapter:slug}', [HomeController::class, 'chapterDetail'])->name('chapter.show');
+Route::get('/author/{user}', [HomeController::class, 'authorProfile'])->name('author.profile');
+
+Route::get('/communities', [\App\Http\Controllers\CommunityController::class, 'index'])->name('communities.index');
+Route::post('/communities', [\App\Http\Controllers\CommunityController::class, 'store'])->name('communities.store')->middleware('auth');
+Route::get('/leaderboard', [\App\Http\Controllers\LeaderboardController::class, 'index'])->name('leaderboard.index');
+Route::get('/download', [HomeController::class, 'download'])->name('download');
+
 
 
 Route::middleware('auth')->group(function () {
@@ -21,6 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/books/{book:id}/edit', [BookController::class, 'edit'])->name('dashboard.books.edit');
     Route::put('/dashboard/books/{book:id}', [BookController::class, 'update'])->name('dashboard.books.update');
     Route::delete('/dashboard/books/{book:id}', [BookController::class, 'destroy'])->name('dashboard.books.destroy');
+    Route::get('/dashboard/chapters/{chapter:id}/quiz', [BookController::class, 'quizManage'])->name('dashboard.chapters.quiz');
+    Route::post('/dashboard/chapters/{chapter:id}/quiz', [BookController::class, 'quizStore'])->name('dashboard.chapters.quiz.store');
     
     Route::get('/dashboard/books/{book:id}/chapters', [ChapterController::class, 'manage'])->name('dashboard.books.chapters');
     Route::get('/dashboard/chapters', [ChapterController::class, 'index'])->name('dashboard.chapter');
@@ -34,6 +45,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [HomeController::class, 'readAllNotifications'])->name('notifications.read-all');
     Route::get('/dashboard/profile', [ProfileController::class, 'edit'])->name('dashboard.profile');
     Route::put('/dashboard/profile', [ProfileController::class, 'update'])->name('dashboard.profile.update');
+    
+    Route::get('/dashboard/streak', [\App\Http\Controllers\ReadingStreakController::class, 'index'])->name('dashboard.streak');
+    Route::get('/dashboard/history', [BookController::class, 'history'])->name('dashboard.history');
+    Route::post('/reading/ping', [\App\Http\Controllers\ReadingStreakController::class, 'ping'])->name('reading.ping');
+
     Route::post('/logout', [LoginController::class, 'destroy'])->name('login.destroy');
 });
 

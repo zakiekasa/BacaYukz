@@ -66,7 +66,7 @@ const BookEdit = ({ book, genres = [] }: BookEditProps) => {
                                 className="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
                                 style={{ width: '60px', height: '60px' }}
                             >
-                                <i className="fa-solid fa-pen-to-square fs-4" style={{ color: '#f28b50' }} />
+                                <i className="fa-solid fa-pen-to-square fs-4" style={{ color: '#FF5A00' }} />
                             </div>
                             <h5 className="fw-bold text-dark mb-1">Edit Info Buku</h5>
                             <p className="text-secondary small">
@@ -156,7 +156,7 @@ const BookEdit = ({ book, genres = [] }: BookEditProps) => {
                                 <button
                                     type="submit"
                                     className="btn btn-primary w-50 py-2 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                                    style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
+                                    style={{ backgroundColor: '#FF5A00', borderColor: '#FF5A00' }}
                                     disabled={processing}
                                 >
                                     <i className="fa-solid fa-save" />

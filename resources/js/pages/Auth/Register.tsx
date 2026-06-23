@@ -1,6 +1,5 @@
 import React from 'react';
-import { useForm } from '@inertiajs/react';
-
+import { useForm, Link, Head } from '@inertiajs/react';
 
 type FormFields = {
     name: string,
@@ -8,7 +7,7 @@ type FormFields = {
     password: string,
     password_confirmation: string,
     role: string
-}
+};
 
 const Register = () => {
     const { data, setData, errors, processing, post, reset } = useForm<FormFields>({
@@ -17,129 +16,194 @@ const Register = () => {
         password: '',
         password_confirmation: '',
         role: 'pembaca'
-    })
+    });
+
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-
         post('/register', {
             onSuccess: () => {
-                reset('name', 'email', 'password', 'password_confirmation', 'role')
+                reset('name', 'email', 'password', 'password_confirmation', 'role');
             }
-        })
-
-
+        });
     }
+
     return (
-        <div className="bg-body-tertiary min-vh-100 d-flex align-items-center justify-content-center py-5">
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+        <div className="min-vh-100 d-flex align-items-stretch font-sans bg-body-tertiary">
+            <Head title="Daftar Akun Baru - BacaYukz" />
+            
+            <style>{`
+                .auth-gradient-sidebar {
+                    background: linear-gradient(135deg, #FF5A00 0%, #FF7B25 100%);
+                }
+                .form-control:focus, .form-select:focus {
+                    border-color: #FF5A00 !important;
+                    box-shadow: 0 0 0 0.25rem rgba(255, 90, 0, 0.25) !important;
+                }
+                .btn-wattpad-primary {
+                    background-color: #FF5A00 !important;
+                    border-color: #FF5A00 !important;
+                    color: #fff !important;
+                    transition: all 0.2s ease;
+                }
+                .btn-wattpad-primary:hover {
+                    background-color: #e04f00 !important;
+                    border-color: #e04f00 !important;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2);
+                }
+                .link-brand {
+                    color: #FF5A00 !important;
+                    transition: color 0.15s ease;
+                }
+                .link-brand:hover {
+                    color: #e04f00 !important;
+                    text-decoration: underline !important;
+                }
+            `}</style>
 
-                        <div className="card border-light shadow-sm rounded-4 px-4 py-5 px-sm-5 bg-white">
+            <div className="container-fluid p-0">
+                <div className="row g-0 min-vh-100">
+                    {/* Left Column: Visual Branding Sidebar (Desktop Only) */}
+                    <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-between auth-gradient-sidebar p-5 text-white position-relative overflow-hidden">
+                        <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '20px 20px' }}></div>
+                        
+                        <div className="position-relative z-1">
+                            <Link href="/" className="fs-3 fw-bold text-white text-decoration-none d-inline-flex align-items-center gap-2">
+                                <i className="fa-solid fa-layer-group"></i>
+                                BacaYukz
+                            </Link>
+                        </div>
+                        
+                        <div className="my-auto position-relative z-1" style={{ maxWidth: '460px' }}>
+                            <h1 className="display-4 fw-bold mb-3 lh-sm">Mulai Petualangan Menulismu.</h1>
+                            <p className="lead opacity-90">
+                                Bergabunglah dengan komunitas pembaca dan kreator cerita terbesar di tanah air. Terbitkan bab pertama karyamu hari ini!
+                            </p>
+                        </div>
+                        
+                        <div className="position-relative z-1 small opacity-75">
+                            &copy; {new Date().getFullYear()} BacaYukz. Hak Cipta Dilindungi.
+                        </div>
+                    </div>
 
-                            {/* Judul diubah menjadi Register */}
-                            <h4 className="text-center fw-bold mb-4 text-dark">Register</h4>
-
-                            <form onSubmit={handleSubmit}>
-                                {/* Tambahan spesifik Register: Full Name */}
-                                <div className="mb-3">
-                                    <input
-                                        type="text"
-                                        className={`form-control py-2 text-secondary ${errors.name && 'is-invalid'}`}
-                                        placeholder="Full Name"
-                                        value={data.name}
-                                        onChange={(e) => { setData('name', e.target.value) }}
-                                        required
-                                    />
-                                    {errors.name &&
-                                        <div className="invalid-feedback">
-                                            {errors.name}
-                                        </div>
-                                    }
-                                </div>
-                                <div className="mb-3">
-                                    <input
-                                        type="email"
-                                        className={`form-control py-2 text-secondary ${errors.email && 'is-invalid'}`}
-                                        placeholder="Email"
-                                        value={data.email}
-                                        onChange={(e) => { setData('email', e.target.value) }}
-                                        required
-                                    />
-                                    {errors.email &&
-                                        <div className="invalid-feedback">
-                                            {errors.email}
-                                        </div>
-                                    }
-                                </div>
-                                <div className="mb-3">
-                                    <input
-                                        type="password"
-                                        className={`form-control py-2 text-secondary ${errors.password && 'is-invalid'}`}
-                                        placeholder="Password"
-                                        value={data.password}
-                                        onChange={(e) => { setData('password', e.target.value) }}
-                                        required
-                                    />
-                                    {errors.password &&
-                                        <div className="invalid-feedback">
-                                            {errors.password}
-                                        </div>
-                                    }
-                                </div>
-                                {/* Tambahan spesifik Register: Confirm Password */}
-                                <div className="mb-3">
-                                    <input
-                                        type="password"
-                                        className={`form-control py-2 text-secondary ${errors.password_confirmation && 'is-invalid'}`}
-                                        placeholder="Confirm Password"
-                                        value={data.password_confirmation}
-                                        onChange={(e) => { setData('password_confirmation', e.target.value) }}
-                                        required
-                                    />
-                                    {errors.password_confirmation &&
-                                        <div className="invalid-feedback">
-                                            {errors.password_confirmation}
-                                        </div>
-                                    }
-                                </div>
-
-                                {/* Pilihan Peran (Role) */}
-                                <div className="mb-3">
-                                    <select
-                                        className={`form-select py-2.5 text-secondary ${errors.role && 'is-invalid'}`}
-                                        value={data.role}
-                                        onChange={(e) => { setData('role', e.target.value) }}
-                                        required
-                                    >
-                                        <option value="pembaca">Daftar Sebagai Pembaca (Reader)</option>
-                                        <option value="penulis">Daftar Sebagai Penulis (Writer)</option>
-                                    </select>
-                                    {errors.role &&
-                                        <div className="invalid-feedback">
-                                            {errors.role}
-                                        </div>
-                                    }
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary w-100 py-2 rounded-3 fw-medium"
-                                    disabled={processing}
-                                >Register</button>
-                            </form>
-
-                            <div className="text-center mt-4">
-                                <span className="text-secondary">Already have an account? </span>
-                                {/* Mengarahkan user kembali ke halaman Sign in */}
-                                <a href="/login" className="text-primary fw-bold text-decoration-none">Login</a>
+                    {/* Right Column: Register Card Form */}
+                    <div className="col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5">
+                        <div className="w-100" style={{ maxWidth: '450px' }}>
+                            <div className="text-center mb-4 d-lg-none">
+                                <Link href="/" className="fs-3 fw-bold text-dark text-decoration-none d-inline-flex align-items-center gap-2 justify-content-center mb-2">
+                                    <i className="fa-solid fa-layer-group text-primary"></i>
+                                    BacaYukz
+                                </Link>
                             </div>
+                            
+                            <div className="card border-0 bg-white shadow-sm rounded-4 p-4 p-sm-5">
+                                <div className="text-center mb-4">
+                                    <h4 className="fw-bold text-dark mb-1">Daftar Akun Baru</h4>
+                                    <p className="text-secondary small">Isi formulir di bawah ini untuk bergabung</p>
+                                </div>
 
+                                <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
+                                    {/* Full Name */}
+                                    <div>
+                                        <label className="form-label fw-semibold text-dark small">Nama Lengkap</label>
+                                        <input
+                                            type="text"
+                                            className={`form-control py-2 text-secondary border-light bg-body-tertiary ${errors.name && 'is-invalid'}`}
+                                            placeholder="Masukkan nama lengkap Anda"
+                                            value={data.name}
+                                            onChange={(e) => setData('name', e.target.value)}
+                                            required
+                                        />
+                                        {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                                    </div>
+
+                                    {/* Email */}
+                                    <div>
+                                        <label className="form-label fw-semibold text-dark small">Alamat Email</label>
+                                        <input
+                                            type="email"
+                                            className={`form-control py-2 text-secondary border-light bg-body-tertiary ${errors.email && 'is-invalid'}`}
+                                            placeholder="Masukkan email Anda"
+                                            value={data.email}
+                                            onChange={(e) => setData('email', e.target.value)}
+                                            required
+                                        />
+                                        {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+                                    </div>
+
+                                    {/* Password */}
+                                    <div>
+                                        <label className="form-label fw-semibold text-dark small">Kata Sandi</label>
+                                        <input
+                                            type="password"
+                                            className={`form-control py-2 text-secondary border-light bg-body-tertiary ${errors.password && 'is-invalid'}`}
+                                            placeholder="Buat kata sandi minimal 8 karakter"
+                                            value={data.password}
+                                            onChange={(e) => setData('password', e.target.value)}
+                                            required
+                                        />
+                                        {errors.password && <div className="invalid-feedback">{errors.password}</div>}
+                                    </div>
+
+                                    {/* Confirm Password */}
+                                    <div>
+                                        <label className="form-label fw-semibold text-dark small">Konfirmasi Kata Sandi</label>
+                                        <input
+                                            type="password"
+                                            className={`form-control py-2 text-secondary border-light bg-body-tertiary ${errors.password_confirmation && 'is-invalid'}`}
+                                            placeholder="Ketik ulang kata sandi Anda"
+                                            value={data.password_confirmation}
+                                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                                            required
+                                        />
+                                        {errors.password_confirmation && <div className="invalid-feedback">{errors.password_confirmation}</div>}
+                                    </div>
+
+                                    {/* Role Selector */}
+                                    <div>
+                                        <label className="form-label fw-semibold text-dark small">Daftar Sebagai</label>
+                                        <select
+                                            className={`form-select py-2.5 text-secondary border-light bg-body-tertiary ${errors.role && 'is-invalid'}`}
+                                            value={data.role}
+                                            onChange={(e) => setData('role', e.target.value)}
+                                            required
+                                        >
+                                            <option value="pembaca">Daftar Sebagai Pembaca (Reader)</option>
+                                            <option value="penulis">Daftar Sebagai Penulis (Writer)</option>
+                                        </select>
+                                        {errors.role && <div className="invalid-feedback">{errors.role}</div>}
+                                    </div>
+
+                                    {/* Submit Button */}
+                                    <button
+                                        type="submit"
+                                        className="btn btn-wattpad-primary w-100 py-2.5 rounded-3 fw-bold mt-2 d-flex align-items-center justify-content-center gap-2"
+                                        disabled={processing}
+                                    >
+                                        {processing ? (
+                                            <>
+                                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                Mendaftar...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <i className="fa-solid fa-user-plus"></i>
+                                                Daftar Sekarang
+                                            </>
+                                        )}
+                                    </button>
+                                </form>
+
+                                <div className="text-center mt-4 pt-2 border-top border-light">
+                                    <span className="text-secondary small">Sudah punya akun? </span>
+                                    <Link href="/login" className="link-brand fw-bold text-decoration-none small">Masuk Ke Akun</Link>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

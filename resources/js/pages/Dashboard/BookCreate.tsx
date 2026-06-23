@@ -67,106 +67,101 @@ const BookCreate = ({ genres = [] }: BookPageProps) => {
                 breadcrumbs={['Upload Karya']}
             />
 
-            <div className="row justify-content-center py-2 flex-grow-1 align-items-center">
-                <div className="col-12 col-md-10 col-lg-10">
-                    <div className="bg-white rounded-4 shadow-sm p-4 p-md-5">
-
-                        {/* Card header */}
-                        <div className="text-center mb-4">
-                            <div
-                                className="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
-                                style={{ width: '60px', height: '60px' }}
-                            >
-                                <i className="fa-solid fa-book-open fs-4" style={{ color: '#f28b50' }} />
-                            </div>
-                            <h5 className="fw-bold text-dark mb-1">Buat Buku</h5>
-                            <p className="text-secondary small">
-                                Buat judul buku anda terlebih dahulu sebelum mengunggah bab setiap buku.
-                            </p>
-                        </div>
-
-                        <form encType="multipart/form-data" onSubmit={handleSubmit}>
-                            {/* Judul Buku */}
-                            <div className="mb-3">
-                                <label className="form-label fw-semibold text-dark small">
-                                    Judul Buku <span className="text-danger">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    className={`form-control rounded-3 text-secondary border-light bg-body-tertiary ${errors.title && 'is-invalid'}`}
-                                    placeholder="Ketik judul buku buatan Anda..."
-                                    required
-                                    value={data.title}
-                                    onChange={(e) => setData('title', e.target.value)}
-                                />
-                                {errors.title && <div className="invalid-feedback">{errors.title}</div>}
-                            </div>
-
-                            {/* Sinopsis */}
-                            <div className="mb-3">
-                                <label className="form-label fw-semibold text-dark small">
-                                    Sinopsis / Deskripsi <span className="text-danger">*</span>
-                                </label>
-                                <textarea
-                                    rows={4}
-                                    className={`form-control rounded-3 text-secondary border-light bg-body-tertiary ${errors.description && 'is-invalid'}`}
-                                    placeholder="Tulis sinopsis cerita atau deskripsi singkat isi buku..."
-                                    required
-                                    value={data.description}
-                                    onChange={(e) => setData('description', e.target.value)}
-                                />
-                                {errors.description && <div className="invalid-feedback">{errors.description}</div>}
-                            </div>
-
-                            {/* Genre */}
-                            <div className="mb-3">
-                                <label className="form-label fw-semibold text-dark small d-block">
-                                    Genre Buku <span className="text-danger">*</span>
-                                </label>
-                                <GenreCheckboxList
-                                    genres={genres}
-                                    selectedIds={data.genres}
-                                    onToggle={handleGenreChange}
-                                    error={errors.genres as string | undefined}
-                                />
-                            </div>
-
-                            {/* Cover */}
-                            <div className="mb-4">
-                                <label className="form-label fw-semibold text-dark small">
-                                    Cover Buku (Gambar) <span className="text-danger">*</span>
-                                </label>
-                                <CoverUploadField
-                                    previewUrl={coverPreview}
-                                    onFileChange={(file) => {
-                                        setData('cover', file);
-                                        if (file) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => setCoverPreview(reader.result as string);
-                                            reader.readAsDataURL(file);
-                                        } else {
-                                            setCoverPreview(null);
-                                        }
-                                    }}
-                                    error={errors.cover as string | undefined}
-                                />
-                            </div>
-
-                            {/* Submit */}
-                            <button
-                                type="submit"
-                                className="btn btn-primary w-100 py-2 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
-                                style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
-                                disabled={processing}
-                            >
-                                <i className="fa-solid fa-folder-plus" />
-                                Tambahkan Buku
-                            </button>
-                        </form>
+            <div className="bg-white rounded-4 shadow-sm p-3 p-lg-5 mb-4">
+                {/* Card header */}
+                <div className="text-center mb-4">
+                    <div
+                        className="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                        style={{ width: '60px', height: '60px' }}
+                    >
+                        <i className="fa-solid fa-book-open fs-4" style={{ color: '#FF5A00' }} />
                     </div>
+                    <h5 className="fw-bold text-dark mb-1">Buat Buku</h5>
+                    <p className="text-secondary small">
+                        Buat judul buku anda terlebih dahulu sebelum mengunggah bab setiap buku.
+                    </p>
                 </div>
-            </div>
-        </DashboardLayout>
+
+                <form encType="multipart/form-data" onSubmit={handleSubmit}>
+                    {/* Judul Buku */}
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold text-dark small">
+                            Judul Buku <span className="text-danger">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            className={`form-control rounded-3 text-secondary border-light bg-body-tertiary ${errors.title && 'is-invalid'}`}
+                            placeholder="Ketik judul buku buatan Anda..."
+                            required
+                            value={data.title}
+                            onChange={(e) => setData('title', e.target.value)}
+                        />
+                        {errors.title && <div className="invalid-feedback">{errors.title}</div>}
+                    </div>
+
+                    {/* Sinopsis */}
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold text-dark small">
+                            Sinopsis / Deskripsi <span className="text-danger">*</span>
+                        </label>
+                        <textarea
+                            rows={4}
+                            className={`form-control rounded-3 text-secondary border-light bg-body-tertiary ${errors.description && 'is-invalid'}`}
+                            placeholder="Tulis sinopsis cerita atau deskripsi singkat isi buku..."
+                            required
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
+                        {errors.description && <div className="invalid-feedback">{errors.description}</div>}
+                    </div>
+
+                    {/* Genre */}
+                    <div className="mb-3">
+                        <label className="form-label fw-semibold text-dark small d-block">
+                            Genre Buku <span className="text-danger">*</span>
+                        </label>
+                        <GenreCheckboxList
+                            genres={genres}
+                            selectedIds={data.genres}
+                            onToggle={handleGenreChange}
+                            error={errors.genres as string | undefined}
+                        />
+                    </div>
+
+                    {/* Cover */}
+                    <div className="mb-4">
+                        <label className="form-label fw-semibold text-dark small">
+                            Cover Buku (Gambar) <span className="text-danger">*</span>
+                        </label>
+                        <CoverUploadField
+                            previewUrl={coverPreview}
+                            onFileChange={(file) => {
+                                setData('cover', file);
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => setCoverPreview(reader.result as string);
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    setCoverPreview(null);
+                                }
+                            }}
+                            error={errors.cover as string | undefined}
+                        />
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                        type="submit"
+                        className="btn btn-primary w-100 py-2 rounded-3 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                        style={{ backgroundColor: '#FF5A00', borderColor: '#FF5A00' }}
+                        disabled={processing}
+                    >
+                        <i className="fa-solid fa-folder-plus" />
+                        Tambahkan Buku
+                    </button>
+                </form>
+            </div >
+        </DashboardLayout >
     );
 };
 

@@ -17,22 +17,37 @@ interface ProfileProps {
 export default function Profile({ user }: ProfileProps) {
     useFlashNotification();
 
-    const { data, setData, put, processing, errors, reset } = useForm({
+    const [avatarPreview, setAvatarPreview] = React.useState<string | null>(
+        (user as any).avatar_url ?? 'https://www.gravatar.com/avatar/?d=mp&s=150'
+    );
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        _method: 'PUT',
         name: user.name,
         email: user.email,
+        daily_target_minutes: (user as any).daily_target_minutes ?? 15,
         password: '',
         password_confirmation: '',
         instagram: user.instagram ?? '',
         twitter: user.twitter ?? '',
         saweria: user.saweria ?? '',
+        avatar: null as File | null,
     });
 
     /** Submits the profile update form. */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put('/dashboard/profile', {
-            onSuccess: () => reset('password', 'password_confirmation'),
+        post('/dashboard/profile', {
+            onSuccess: () => reset('password', 'password_confirmation', 'avatar'),
         });
+    };
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setData('avatar', file);
+            setAvatarPreview(URL.createObjectURL(file));
+        }
     };
 
     return (
@@ -42,8 +57,31 @@ export default function Profile({ user }: ProfileProps) {
                 breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, 'Edit Profil']}
             />
 
-            <div className="bg-white rounded-4 shadow-sm p-4" style={{ maxWidth: '640px' }}>
-                <form onSubmit={handleSubmit} className="d-flex flex-column gap-4">
+            <div className="bg-white rounded-4 shadow-sm p-3 p-lg-5 row">
+                <form onSubmit={handleSubmit} className="d-flex flex-column gap-4 col-xl-8 col-12">
+                    {/* Foto Profil */}
+                    <div className="d-flex align-items-center gap-4">
+                        <div className="position-relative" style={{ width: '100px', height: '100px' }}>
+                            <img
+                                src={avatarPreview ?? 'https://www.gravatar.com/avatar/?d=mp&s=150'}
+                                alt="Pratinjau Foto Profil"
+                                className="w-100 h-100 object-fit-cover rounded-circle border border-2 border-light-subtle"
+                            />
+                        </div>
+                        <div>
+                            <FormLabel>Foto Profil</FormLabel>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="form-control form-control-sm rounded-3 mt-1"
+                                onChange={handleAvatarChange}
+                            />
+                            {errors.avatar && <div className="text-danger small mt-1">{errors.avatar}</div>}
+                            <div className="form-text text-muted" style={{ fontSize: '0.75rem' }}>
+                                Format: JPG, PNG, atau JPEG. Maksimal 2MB.
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Nama Lengkap */}
                     <FormField label="Nama Lengkap" error={errors.name}>
@@ -65,6 +103,20 @@ export default function Profile({ user }: ProfileProps) {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             placeholder="Masukkan alamat email Anda"
+                            required
+                        />
+                    </FormField>
+
+                    {/* Target Membaca Harian */}
+                    <FormField label="Target Membaca Harian (Menit)" error={errors.daily_target_minutes}>
+                        <input
+                            type="number"
+                            className={`form-control rounded-3 ${errors.daily_target_minutes ? 'is-invalid' : 'border-light-subtle'}`}
+                            value={data.daily_target_minutes}
+                            onChange={(e) => setData('daily_target_minutes', parseInt(e.target.value) || 0)}
+                            placeholder="Masukkan target membaca harian Anda"
+                            min="1"
+                            max="1440"
                             required
                         />
                     </FormField>
@@ -149,7 +201,7 @@ export default function Profile({ user }: ProfileProps) {
                         <button
                             type="submit"
                             className="btn btn-primary rounded-3 px-4 py-2 fw-semibold d-inline-flex align-items-center justify-content-center shadow-sm"
-                            style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
+                            style={{ backgroundColor: '#FF5A00', borderColor: '#FF5A00' }}
                             disabled={processing}
                         >
                             {processing ? (

@@ -7,30 +7,6 @@ import EmptyState from '../../components/dashboard/EmptyState';
 import { useFlashNotification } from '../../hooks/useFlashNotification';
 import type { BookItem } from '../../types/models';
 
-/** @internal Default mock books shown when no props are passed (dev fallback). */
-const DEFAULT_BOOKS: BookItem[] = [
-    {
-        id: 1,
-        title: 'Belajar Pemrograman Web untuk Pemula',
-        cover: 'https://placehold.co/100x140/1e3a8a/FFFFFF?text=Belajar+Web&font=Montserrat',
-        description: 'Panduan praktis belajar HTML, CSS, dan JavaScript dari nol.',
-        chaptersCount: 5,
-        viewsSum: 250,
-        createdAt: '2026-06-08',
-        slug: 'belajar-web',
-    },
-    {
-        id: 2,
-        title: 'Kisah Kancil Modern abad 21',
-        cover: 'https://placehold.co/100x140/f28b50/FFFFFF?text=Kancil+21&font=Montserrat',
-        description: 'Fabel jenaka yang diadaptasi dengan teknologi modern.',
-        chaptersCount: 2,
-        viewsSum: 100,
-        createdAt: '2026-06-07',
-        slug: 'kancil-abad-21',
-    },
-];
-
 interface DashboardProps {
     books?: BookItem[];
     totalBooks?: number;
@@ -50,8 +26,8 @@ const Dashboard = ({ books, totalBooks, totalChapters, totalReaders }: Dashboard
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<SortOption>('latest');
 
-    const booksList = books ?? DEFAULT_BOOKS;
-    const finalTotalBooks   = totalBooks   ?? booksList.length;
+    const booksList = books || [];
+    const finalTotalBooks = totalBooks ?? booksList.length;
     const finalTotalChapters = totalChapters ?? booksList.reduce((acc, b) => acc + b.chaptersCount, 0);
     const finalTotalReaders = totalReaders ?? 350;
 
@@ -62,7 +38,7 @@ const Dashboard = ({ books, totalBooks, totalChapters, totalReaders }: Dashboard
                 (book) =>
                     book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     book.description.toLowerCase().includes(searchQuery.toLowerCase())
-              )
+            )
             : booksList;
 
         return sortBooks(filtered, sortBy);
@@ -78,7 +54,7 @@ const Dashboard = ({ books, totalBooks, totalChapters, totalReaders }: Dashboard
             text: 'Buku dan semua bab di dalamnya akan dihapus secara permanen!',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#f28b50',
+            confirmButtonColor: '#FF5A00',
             cancelButtonColor: '#cbd5e1',
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText: 'Batal',
@@ -120,31 +96,6 @@ const Dashboard = ({ books, totalBooks, totalChapters, totalReaders }: Dashboard
                     </div>
                 }
             />
-
-            {/* Stats Cards */}
-            <div className="row g-3 g-lg-4 mb-4">
-                <div className="col-12 col-md-4">
-                    <div className="rounded-4 p-4 text-white shadow-sm h-100 d-flex flex-column justify-content-center bg-primary">
-                        <i className="fa-solid fa-glasses fs-4 mb-3" />
-                        <h2 className="fw-bold mb-1">{finalTotalReaders}</h2>
-                        <div style={{ fontSize: '0.9rem' }}>Total Pembaca</div>
-                    </div>
-                </div>
-                <div className="col-12 col-md-4">
-                    <div className="rounded-4 p-4 text-white shadow-sm h-100 d-flex flex-column justify-content-center bg-success">
-                        <i className="fa-solid fa-book-open fs-3 mb-3" />
-                        <h2 className="fw-bold mb-1">{finalTotalBooks}</h2>
-                        <div style={{ fontSize: '0.9rem' }}>Total Buku</div>
-                    </div>
-                </div>
-                <div className="col-12 col-md-4">
-                    <div className="rounded-4 p-4 text-white shadow-sm h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: '#2d2d2d' }}>
-                        <i className="fa-solid fa-file-lines fs-3 mb-3" />
-                        <h2 className="fw-bold mb-1">{finalTotalChapters}</h2>
-                        <div style={{ fontSize: '0.9rem' }}>Total Chapter</div>
-                    </div>
-                </div>
-            </div>
 
             {/* Books Table */}
             <div className="bg-white rounded-4 shadow-sm p-3 p-lg-4 mb-4">
@@ -211,7 +162,7 @@ const Dashboard = ({ books, totalBooks, totalChapters, totalReaders }: Dashboard
                                                     style={{ fontSize: '0.85rem' }}
                                                 >
                                                     <i className="fa-solid fa-eye text-white me-1" />
-                                                    Chapter
+                                                    Bab
                                                 </Link>
                                                 <Link
                                                     href={`/dashboard/books/${book.id}/edit`}

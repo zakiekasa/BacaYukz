@@ -11,7 +11,7 @@ export const useSidebar = () => useContext(SidebarContext);
 
 interface DashboardLayoutProps {
     /** The active menu key to highlight in the sidebar. */
-    active: 'dashboard' | 'books' | 'chapters' | 'likes' | 'profile' | 'none';
+    active: 'dashboard' | 'books' | 'chapters' | 'likes' | 'profile' | 'streak' | 'leaderboard' | 'history' | 'none';
     /** The page content to render inside the main area. */
     children: React.ReactNode;
 }

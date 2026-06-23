@@ -9,3 +9,50 @@
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 }
+
+/* Color overrides to match Wattpad Orange color (#FF5A00) */
+:root {
+    --bs-primary: #FF5A00 !important;
+    --bs-primary-rgb: 255, 90, 0 !important;
+    --bs-link-color: #FF5A00 !important;
+    --bs-link-hover-color: #e04f00 !important;
+}
+
+.btn-primary {
+    --bs-btn-bg: #FF5A00 !important;
+    --bs-btn-border-color: #FF5A00 !important;
+    --bs-btn-hover-bg: #e04f00 !important;
+    --bs-btn-hover-border-color: #e04f00 !important;
+    --bs-btn-active-bg: #cc4800 !important;
+    --bs-btn-active-border-color: #cc4800 !important;
+    --bs-btn-disabled-bg: #FF5A00 !important;
+    --bs-btn-disabled-border-color: #FF5A00 !important;
+    --bs-btn-color: #fff !important;
+    --bs-btn-hover-color: #fff !important;
+    --bs-btn-active-color: #fff !important;
+}
+
+.btn-outline-primary {
+    --bs-btn-color: #FF5A00 !important;
+    --bs-btn-border-color: #FF5A00 !important;
+    --bs-btn-hover-bg: #FF5A00 !important;
+    --bs-btn-hover-border-color: #FF5A00 !important;
+    --bs-btn-hover-color: #fff !important;
+    --bs-btn-active-bg: #cc4800 !important;
+    --bs-btn-active-border-color: #cc4800 !important;
+    --bs-btn-active-color: #fff !important;
+}
+
+.text-primary {
+    color: #FF5A00 !important;
+}
+
+.bg-primary {
+    background-color: #FF5A00 !important;
+}
+
+.form-check-input:checked {
+    background-color: #FF5A00 !important;
+    border-color: #FF5A00 !important;
+}
+

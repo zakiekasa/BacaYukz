@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, usePage } from '@inertiajs/react';
 
 interface SidebarProps {
-    active: 'dashboard' | 'books' | 'chapters' | 'likes' | 'profile' | 'none';
+    active: 'dashboard' | 'books' | 'chapters' | 'likes' | 'profile' | 'streak' | 'leaderboard' | 'history' | 'none';
     isSidebarOpen: boolean;
     setIsSidebarOpen: (isOpen: boolean) => void;
 }
@@ -51,7 +51,7 @@ export default function Sidebar({ active, isSidebarOpen, setIsSidebarOpen }: Sid
                     >
                         <div 
                             className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'dashboard' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
-                            style={{ width: '40px', height: '40px', backgroundColor: active === 'dashboard' ? '#f28b50' : undefined }}
+                            style={{ width: '40px', height: '40px', backgroundColor: active === 'dashboard' ? '#FF5A00' : undefined }}
                         >
                             <i className="fa-solid fa-house"></i>
                         </div>
@@ -67,7 +67,7 @@ export default function Sidebar({ active, isSidebarOpen, setIsSidebarOpen }: Sid
                     >
                         <div 
                             className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'books' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
-                            style={{ width: '40px', height: '40px', backgroundColor: active === 'books' ? '#f28b50' : undefined }}
+                            style={{ width: '40px', height: '40px', backgroundColor: active === 'books' ? '#FF5A00' : undefined }}
                         >
                             <i className="fa-solid fa-book"></i>
                         </div>
@@ -83,7 +83,7 @@ export default function Sidebar({ active, isSidebarOpen, setIsSidebarOpen }: Sid
                     >
                         <div 
                             className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'chapters' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
-                            style={{ width: '40px', height: '40px', backgroundColor: active === 'chapters' ? '#f28b50' : undefined }}
+                            style={{ width: '40px', height: '40px', backgroundColor: active === 'chapters' ? '#FF5A00' : undefined }}
                         >
                             <i className="fa-solid fa-file-lines"></i>
                         </div>
@@ -98,11 +98,53 @@ export default function Sidebar({ active, isSidebarOpen, setIsSidebarOpen }: Sid
                 >
                     <div 
                         className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'likes' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
-                        style={{ width: '40px', height: '40px', backgroundColor: active === 'likes' ? '#f28b50' : undefined }}
+                        style={{ width: '40px', height: '40px', backgroundColor: active === 'likes' ? '#FF5A00' : undefined }}
                     >
                         <i className="fa-solid fa-heart"></i>
                     </div>
                     Suka
+                </Link>
+
+                {/* Menu Riwayat */}
+                <Link 
+                    href="/dashboard/history" 
+                    className={`d-flex align-items-center p-2 rounded-3 text-decoration-none ${active === 'history' ? 'text-dark fw-bold mb-1' : 'text-secondary fw-semibold'}`}
+                >
+                    <div 
+                        className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'history' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
+                        style={{ width: '40px', height: '40px', backgroundColor: active === 'history' ? '#FF5A00' : undefined }}
+                    >
+                        <i className="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    Riwayat
+                </Link>
+
+                {/* Menu Streak */}
+                <Link 
+                    href="/dashboard/streak" 
+                    className={`d-flex align-items-center p-2 rounded-3 text-decoration-none ${active === 'streak' ? 'text-dark fw-bold mb-1' : 'text-secondary fw-semibold'}`}
+                >
+                    <div 
+                        className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'streak' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
+                        style={{ width: '40px', height: '40px', backgroundColor: active === 'streak' ? '#FF5A00' : undefined }}
+                    >
+                        <i className="fa-solid fa-fire"></i>
+                    </div>
+                    Streak
+                </Link>
+
+                {/* Menu Leaderboard */}
+                <Link 
+                    href="/leaderboard" 
+                    className={`d-flex align-items-center p-2 rounded-3 text-decoration-none ${active === 'leaderboard' ? 'text-dark fw-bold mb-1' : 'text-secondary fw-semibold'}`}
+                >
+                    <div 
+                        className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'leaderboard' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
+                        style={{ width: '40px', height: '40px', backgroundColor: active === 'leaderboard' ? '#FF5A00' : undefined }}
+                    >
+                        <i className="fa-solid fa-trophy"></i>
+                    </div>
+                    Leaderboard
                 </Link>
 
                 {/* Menu Profil */}
@@ -112,7 +154,7 @@ export default function Sidebar({ active, isSidebarOpen, setIsSidebarOpen }: Sid
                 >
                     <div 
                         className={`rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm ${active === 'profile' ? 'text-white' : 'bg-light text-secondary border border-light'}`}
-                        style={{ width: '40px', height: '40px', backgroundColor: active === 'profile' ? '#f28b50' : undefined }}
+                        style={{ width: '40px', height: '40px', backgroundColor: active === 'profile' ? '#FF5A00' : undefined }}
                     >
                         <i className="fa-solid fa-user-gear"></i>
                     </div>

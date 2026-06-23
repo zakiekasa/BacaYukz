@@ -43,7 +43,7 @@ export default function EmptyState({ icon, heading, description, action }: Empty
                 <Link
                     href={action.href}
                     className="btn btn-primary btn-sm rounded-3 px-4 py-2"
-                    style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
+                    style={{ backgroundColor: '#FF5A00', borderColor: '#FF5A00' }}
                 >
                     {action.icon && <i className={`${action.icon} me-2`} />}
                     {action.label}

@@ -33,4 +33,9 @@ class Chapter extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function quiz()
+    {
+        return $this->hasOne(Quiz::class);
+    }
 }

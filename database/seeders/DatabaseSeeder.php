@@ -80,7 +80,7 @@ class DatabaseSeeder extends Seeder
                 'view' => $data['view'],
             ]);
 
-            usleep(2000000);
+            usleep(100000); // Speed up book loop
 
             // Attach 1 to 3 random genres to this book
             $randomGenreIds = collect($genres)->random(rand(1, 3))->pluck('id');
@@ -109,10 +109,67 @@ class DatabaseSeeder extends Seeder
                     'view' => rand(10, 100),
                 ]);
 
-                usleep(2000000);
+                usleep(100000); // Speed up slightly to 0.1s
             }
 
             
         }   
+
+        // 6. Create Reading Communities
+        $communitiesData = [
+            [
+                'name' => 'Klub Buku Jogja',
+                'description' => 'Komunitas berkumpulnya para pecinta buku di Yogyakarta. Kami rutin mengadakan book-talk setiap akhir pekan di kafe-kafe lokal.',
+                'city' => 'Yogyakarta',
+                'province' => 'DI Yogyakarta',
+                'whatsapp_url' => 'https://chat.whatsapp.com/sample-jogja',
+                'instagram_username' => 'klubbuku.jogja',
+                'member_count' => 125,
+            ],
+            [
+                'name' => 'Jakarta Book Club',
+                'description' => 'Membaca bersama, bertukar cerita, dan menyebarkan literasi di tengah hiruk pikuk kota Jakarta. Terbuka untuk umum.',
+                'city' => 'Jakarta Selatan',
+                'province' => 'DKI Jakarta',
+                'whatsapp_url' => 'https://chat.whatsapp.com/sample-jakarta',
+                'instagram_username' => 'jakartabookclub',
+                'member_count' => 340,
+            ],
+            [
+                'name' => 'Bandung Membaca',
+                'description' => 'Wadah silaturahmi para pembaca di wilayah Bandung dan sekitarnya. Yuk gabung untuk berbagi ulasan buku favorit!',
+                'city' => 'Bandung',
+                'province' => 'Jawa Barat',
+                'whatsapp_url' => 'https://chat.whatsapp.com/sample-bandung',
+                'instagram_username' => 'bandung.membaca',
+                'member_count' => 88,
+            ],
+            [
+                'name' => 'Surabaya Read & Share',
+                'description' => 'Cangkrukan bareng pencinta buku di Surabaya. Saling review, ngobrol santai, dan adakan bursa buku bekas gratis.',
+                'city' => 'Surabaya',
+                'province' => 'Jawa Timur',
+                'whatsapp_url' => 'https://chat.whatsapp.com/sample-surabaya',
+                'instagram_username' => 'sub.readshare',
+                'member_count' => 150,
+            ],
+            [
+                'name' => 'Medan Book Society',
+                'description' => 'Kolektif pembaca buku di Medan. Berkomitmen menumbuhkan minat baca melalui sharing session bulanan.',
+                'city' => 'Medan',
+                'province' => 'Sumatera Utara',
+                'whatsapp_url' => 'https://chat.whatsapp.com/sample-medan',
+                'instagram_username' => 'medanbooksociety',
+                'member_count' => 45,
+            ]
+        ];
+
+        foreach ($communitiesData as $cData) {
+            \App\Models\Community::create(array_merge($cData, [
+                'created_by' => $users[rand(0, count($users) - 1)]->id,
+                'avatar_url' => 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=150&h=150&q=80',
+            ]));
+        }
     }
 }
+

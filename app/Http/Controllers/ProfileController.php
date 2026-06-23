@@ -6,13 +6,22 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
+        $user = auth()->user();
+        $user->avatar_url = $user->avatar 
+            ? (str_starts_with($user->avatar, 'http') ? $user->avatar : asset('storage/avatars/' . $user->avatar)) 
+            : null;
+
         return Inertia::render('Dashboard/Profile', [
-            'user' => auth()->user(),
+            'user' => $user,
         ]);
     }
 
@@ -30,6 +39,8 @@ class ProfileController extends Controller
                 Rule::unique('users')->ignore($user->id),
             ],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'daily_target_minutes' => ['required', 'integer', 'min:1', 'max:1440'],
         ];
 
         if ($user->role === 'penulis') {
@@ -42,11 +53,28 @@ class ProfileController extends Controller
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
+        $user->daily_target_minutes = $validated['daily_target_minutes'];
 
         if ($user->role === 'penulis') {
             $user->instagram = $validated['instagram'] ?? null;
             $user->twitter = $validated['twitter'] ?? null;
             $user->saweria = $validated['saweria'] ?? null;
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && !str_starts_with($user->avatar, 'http')) {
+                Storage::disk('public')->delete('avatars/' . $user->avatar);
+            }
+
+            $file = $request->file('avatar');
+            $fileName = Str::slug($validated['name']) . '-' . time() . '.webp';
+            $manager = new ImageManager(new Driver());
+            $image = $manager->decode($file);
+            $image->cover(300, 300);
+            $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
+            Storage::disk('public')->put('avatars/' . $fileName, $encoded->toString());
+
+            $user->avatar = $fileName;
         }
 
         if (!empty($validated['password'])) {

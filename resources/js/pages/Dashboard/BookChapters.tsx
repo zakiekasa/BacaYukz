@@ -32,7 +32,7 @@ const BookChapters = ({ book, chapters = [] }: BookChaptersProps) => {
             text: 'Bab ini akan dihapus secara permanen!',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#f28b50',
+            confirmButtonColor: '#FF5A00',
             cancelButtonColor: '#cbd5e1',
             confirmButtonText: 'Ya, hapus!',
             cancelButtonText: 'Batal',
@@ -69,7 +69,7 @@ const BookChapters = ({ book, chapters = [] }: BookChaptersProps) => {
                         <Link
                             href={`/dashboard/chapters?book_id=${book.id}`}
                             className="btn btn-primary btn-sm rounded-3 px-4 py-2 fw-semibold"
-                            style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}
+                            style={{ backgroundColor: '#FF5A00', borderColor: '#FF5A00' }}
                         >
                             <i className="fa-solid fa-plus me-2" />
                             Tambah Bab Baru
@@ -117,6 +117,14 @@ const BookChapters = ({ book, chapters = [] }: BookChaptersProps) => {
                                         </td>
                                         <td className="py-3 text-secondary">{chapter.createdAt}</td>
                                         <td className="py-3 text-end">
+                                            <Link
+                                                href={`/dashboard/chapters/${chapter.id}/quiz`}
+                                                className="btn btn-warning btn-sm rounded-3 me-2 border-0 shadow-sm text-white"
+                                                title="Kelola Kuis Bab"
+                                                style={{ backgroundColor: '#FF5A00' }}
+                                            >
+                                                <i className="fa-solid fa-graduation-cap text-white" />
+                                            </Link>
                                             <Link
                                                 href={`/dashboard/chapters/${chapter.id}/edit`}
                                                 className="btn btn-success btn-sm rounded-3 me-2 border-0 shadow-sm text-white"

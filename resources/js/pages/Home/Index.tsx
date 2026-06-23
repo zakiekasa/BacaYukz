@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import React from 'react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import Book from '../../components/home/Book';
 import Navbar from '../../components/home/Navbar';
 
@@ -18,314 +18,369 @@ interface BookItem {
     view?: number;
     likes?: number;
     genres?: GenreItem[];
+    user?: {
+        id: number;
+        name: string;
+        avatar: string | null;
+    };
 }
 
-const Home = ({ books = [], genres = [] }: { books: BookItem[]; genres: GenreItem[] }) => {
-    const [activeCategory, setActiveCategory] = useState('Semua');
-    const [sortBy, setSortBy] = useState('latest');
+interface IndexProps {
+    popularBooks?: BookItem[];
+}
 
-    // Filter and sort books based on selected category pill and sort option
-    const filteredBooks = React.useMemo(() => {
-        let result = [...books];
+const Home = ({ popularBooks = [] }: IndexProps) => {
+    const { auth } = usePage().props as any;
 
-        // 1. Filter by category
-        if (activeCategory !== 'Semua') {
-            result = result.filter((book) =>
-                book.genres?.some((genre) => genre.name.toLowerCase() === activeCategory.toLowerCase())
-            );
-        }
-
-        // 2. Sort books
-        if (sortBy === 'latest') {
-            result.sort((a, b) => b.id - a.id);
-        } else if (sortBy === 'popular') {
-            result.sort((a, b) => (b.view ?? 0) - (a.view ?? 0));
-        } else if (sortBy === 'liked') {
-            result.sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
-        }
-
-        return result;
-    }, [books, activeCategory, sortBy]);
-
-    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const searchParamQuery = urlParams ? urlParams.get('search') || '' : '';
-
-    // Filter and sort search results based on search input, category, and sorting selection
-    const filteredSearchResults = React.useMemo(() => {
-        if (!searchParamQuery) return [];
-
-        let result = books.filter(book =>
-            book.title.toLowerCase().includes(searchParamQuery.toLowerCase()) ||
-            book.description.toLowerCase().includes(searchParamQuery.toLowerCase())
-        );
-
-        if (activeCategory !== 'Semua') {
-            result = result.filter((book) =>
-                book.genres?.some((genre) => genre.name.toLowerCase() === activeCategory.toLowerCase())
-            );
-        }
-
-        if (sortBy === 'latest') {
-            result.sort((a, b) => b.id - a.id);
-        } else if (sortBy === 'popular') {
-            result.sort((a, b) => (b.view ?? 0) - (a.view ?? 0));
-        } else if (sortBy === 'liked') {
-            result.sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
-        }
-
-        return result;
-    }, [books, searchParamQuery, activeCategory, sortBy]);
-    const [showLeftBtn, setShowLeftBtn] = useState(false);
-    const [showRightBtn, setShowRightBtn] = useState(false);
-
-    const scrollRef = React.useRef<HTMLDivElement>(null);
-
-    const checkScrollPosition = () => {
-        if (scrollRef.current) {
-            const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-            setShowLeftBtn(scrollLeft > 5);
-            setShowRightBtn(scrollLeft + clientWidth < scrollWidth - 5);
-        }
-    };
-
-    const scrollRight = () => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollBy({ left: 320, behavior: 'smooth' });
-        }
-    };
-
-    const scrollLeft = () => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollBy({ left: -320, behavior: 'smooth' });
-        }
-    };
-
-    React.useEffect(() => {
-        const timer = setTimeout(() => {
-            checkScrollPosition();
-        }, 100);
-
-        window.addEventListener('resize', checkScrollPosition);
-        return () => {
-            clearTimeout(timer);
-            window.removeEventListener('resize', checkScrollPosition);
-        };
-    }, [books]);
+    const bookCollage = React.useMemo(() => {
+        return popularBooks.slice(0, 4).map((book, idx) => {
+            const coverUrl = book.cover
+                ? (book.cover.startsWith('http') ? book.cover : `/storage/covers/${book.cover}`)
+                : `https://picsum.photos/300/400?random=${book.id + 10}`;
+            return {
+                id: book.id,
+                title: book.title,
+                coverUrl
+            };
+        });
+    }, [popularBooks]);
 
     return (
-        <div className="bg-white min-vh-100 font-sans">
-            <Head title="Home - BacaYukz" />
+        <div className="bg-white min-vh-100 font-sans d-flex flex-column" style={{ color: '#333' }}>
+            <Head title="Beranda - BacaYukz" />
             <Navbar />
 
+            {/* Custom Wattpad-inspired Styles */}
+            <style>{`
+                @keyframes float-gentle {
+                    0%, 100% { transform: translateY(0) rotate(-6deg); }
+                    50% { transform: translateY(-8px) rotate(-4deg); }
+                }
+                @keyframes float-gentle-reverse {
+                    0%, 100% { transform: translateY(0) rotate(6deg); }
+                    50% { transform: translateY(-8px) rotate(4deg); }
+                }
+                .float-1 { animation: float-gentle 5s ease-in-out infinite; }
+                .float-2 { animation: float-gentle-reverse 6s ease-in-out infinite; }
+                
+                .wattpad-orange {
+                    color: #FF5A00 !important;
+                }
+                .btn-wattpad-primary {
+                    background-color: #FF5A00 !important;
+                    border-color: #FF5A00 !important;
+                    color: #fff !important;
+                    transition: all 0.2s ease;
+                }
+                .btn-wattpad-primary:hover {
+                    background-color: #e04f00 !important;
+                    border-color: #e04f00 !important;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2);
+                }
+                .btn-wattpad-secondary {
+                    background-color: transparent !important;
+                    border-color: #fff !important;
+                    color: #fff !important;
+                    transition: all 0.2s ease;
+                }
+                .btn-wattpad-secondary:hover {
+                    background-color: rgba(255, 255, 255, 0.15) !important;
+                    transform: translateY(-2px);
+                }
+                .btn-wattpad-outline {
+                    background-color: transparent !important;
+                    border-color: #FF5A00 !important;
+                    color: #FF5A00 !important;
+                    transition: all 0.2s ease;
+                }
+                .btn-wattpad-outline:hover {
+                    background-color: rgba(255, 90, 0, 0.05) !important;
+                    transform: translateY(-2px);
+                }
+                .wattpad-hero {
+                    background: linear-gradient(135deg, #FF5A00 0%, #FF7B25 100%);
+                    position: relative;
+                    overflow: hidden;
+                    border-radius: 1.5rem;
+                }
+                [data-bs-theme="dark"] .wattpad-hero {
+                    background: linear-gradient(135deg, #cc4800 0%, #1e120c 100%);
+                }
+                [data-bs-theme="dark"] .text-dark {
+                    color: #ffffff !important;
+                }
+                .hover-scale {
+                    transition: all 0.2s ease-in-out;
+                }
+                .hover-scale:hover {
+                    transform: translateY(-5px) !important;
+                    box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1) !important;
+                }
+                .pillar-section {
+                    padding: 80px 0;
+                    border-bottom: 1px solid #f0f0f0;
+                }
+                [data-bs-theme="dark"] .pillar-section {
+                    border-bottom-color: #222;
+                }
+                .book-collage-item {
+                    width: 120px;
+                    height: 175px;
+                    border-radius: 6px;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                    background-color: #eee;
+                    object-fit: cover;
+                    transition: all 0.3s ease;
+                }
+                .book-collage-item:hover {
+                    transform: scale(1.08);
+                    z-index: 10;
+                }
+            `}</style>
+
             {/* 2. MAIN CONTENT CONTAINER */}
-            <div className="container px-4 px-lg-5 py-5">
-                <style>{`
-                    .custom-horizontal-scroll {
-                        scrollbar-width: none; /* Firefox */
-                        -ms-overflow-style: none; /* IE and Edge */
-                    }
-                    .custom-horizontal-scroll::-webkit-scrollbar {
-                        display: none; /* Chrome, Safari and Opera */
-                    }
-                    .hover-scale {
-                        transition: all 0.2s ease-in-out;
-                    }
-                    .hover-scale:hover {
-                        transform: translateY(-50%) scale(1.1) !important;
-                        background-color: #ffffff !important;
-                        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
-                    }
-                `}</style>
-
-                {searchParamQuery ? (
-                    <section className="mb-5 animate-fade-in" id="search-results">
-                        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-                            <div>
-                                <h3 className="fw-bolder text-dark mb-1">Hasil Pencarian</h3>
-                                <p className="text-secondary small mb-0">Ditemukan {filteredSearchResults.length} buku untuk kata kunci: <strong className="text-dark">"{searchParamQuery}"</strong></p>
+            <div className="container px-4 px-lg-5 py-5 flex-grow-1">
+                {/* WATTPAD HERO SECTION */}
+                <div className="wattpad-hero py-5 px-4 px-md-5 mb-5 shadow-sm position-relative">
+                    <div className="row align-items-center g-5">
+                        <div className="col-lg-7 text-center text-lg-start text-white position-relative z-1">
+                            <h1 className="display-3 fw-bold mb-3 lh-sm" style={{ letterSpacing: '-0.03em' }}>
+                                BacaYukz. Platform Bercerita Sosial Paling Dicintai.
+                            </h1>
+                            <p className="lead mb-4 opacity-90" style={{ fontSize: '1.15rem', lineHeight: '1.7' }}>
+                                BacaYukz menghubungkan komunitas pecinta cerita di seluruh tanah air. Tulis kisah inspiratifmu sendiri, atau selami ribuan cerita seru dari para kreator berbakat kami secara gratis.
+                            </p>
+                            <div className="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
+                                <Link href="/books" className="btn btn-lg rounded px-4 py-2.5 fw-bold btn-wattpad-secondary">
+                                    <i className="fa-solid fa-book-open me-2"></i>Mulai Membaca
+                                </Link>
+                                {auth.user ? (
+                                    <Link href="/dashboard" className="btn btn-lg rounded px-4 py-2.5 fw-bold btn-wattpad-secondary border-white">
+                                        <i className="fa-solid fa-pen me-2"></i>Menjadi Penulis
+                                    </Link>
+                                ) : (
+                                    <Link href="/register" className="btn btn-lg rounded px-4 py-2.5 fw-bold btn-wattpad-secondary border-white">
+                                        <i className="fa-solid fa-user-plus me-2"></i>Mulai Menulis
+                                    </Link>
+                                )}
                             </div>
-                            <Link href="/" className="btn btn-light btn-sm rounded-pill border px-3 fw-semibold text-dark text-decoration-none shadow-sm">
-                                <i className="fa-solid fa-xmark me-1"></i>Bersihkan Pencarian
+                        </div>
+                        <div className="col-lg-5 d-none d-lg-flex justify-content-center position-relative" style={{ height: '300px' }}>
+                            {/* Wattpad-style rotated book collage stack */}
+                            <div className="position-relative w-100 h-100 d-flex justify-content-center align-items-center">
+                                {bookCollage.map((book, idx) => {
+                                    const rotateAngle = idx === 0 ? '-12deg' : idx === 1 ? '8deg' : idx === 2 ? '-4deg' : '10deg';
+                                    const topOffset = idx === 0 ? '10px' : idx === 1 ? '-20px' : idx === 2 ? '30px' : '0px';
+                                    const leftOffset = idx === 0 ? '-80px' : idx === 1 ? '10px' : idx === 2 ? '100px' : '-10px';
+                                    const zIndex = idx === 1 ? 4 : idx === 3 ? 3 : 2;
+                                    const animationClass = idx % 2 === 0 ? 'float-1' : 'float-2';
+
+                                    return (
+                                        <img
+                                            key={book.id}
+                                            src={book.coverUrl}
+                                            alt={book.title}
+                                            className={`position-absolute book-collage-item ${animationClass}`}
+                                            style={{
+                                                transform: `rotate(${rotateAngle})`,
+                                                top: `calc(50% - 85px + ${topOffset})`,
+                                                left: `calc(50% - 60px + ${leftOffset})`,
+                                                zIndex: zIndex
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* FEATURE HIGHLIGHTS (STREAKS & LEADERBOARDS & COMMUNITIES) */}
+                <section className="py-5">
+                    <h3 className="fw-bold text-center mb-5 text-dark">Mengapa BacaYukz Lebih Menarik?</h3>
+                    <div className="row g-4">
+                        <div className="col-md-4">
+                            <div className="card border-0 shadow-sm rounded-4 p-4 text-center h-100 hover-scale bg-white">
+                                <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '70px', height: '70px' }}>
+                                    <i className="fa-solid fa-fire fs-3"></i>
+                                </div>
+                                <h5 className="fw-bold text-dark mb-2">Streak Harian (Gaya Strava)</h5>
+                                <p className="text-secondary small mb-3">Tantang dirimu sendiri untuk membaca setiap hari secara konsisten. Hasilkan kartu prestasi story 9:16 premium untuk dibagikan di Instagram!</p>
+                                {auth.user ? (
+                                    <Link href="/dashboard/streak" className="btn btn-outline-primary btn-sm rounded-pill px-4 py-1.5 fw-semibold mt-auto">
+                                        Lihat Streak Saya
+                                    </Link>
+                                ) : (
+                                    <Link href="/login" className="btn btn-outline-primary btn-sm rounded-pill px-4 py-1.5 fw-semibold mt-auto">
+                                        Mulai Catat Streak
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="card border-0 shadow-sm rounded-4 p-4 text-center h-100 hover-scale bg-white">
+                                <div className="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '70px', height: '70px', backgroundColor: '#198754' }}>
+                                    <i className="fa-solid fa-location-dot fs-3"></i>
+                                </div>
+                                <h5 className="fw-bold text-dark mb-2">Komunitas Membaca Lokal</h5>
+                                <p className="text-secondary small mb-3">Cari klub membaca di kota atau provinsi masing-masing. Bertukar cerita, adakan diskusi bersama, dan hilangkan rasa malas membaca.</p>
+                                <Link href="/communities" className="btn btn-outline-success btn-sm rounded-pill px-4 py-1.5 fw-semibold mt-auto" style={{ color: '#198754', borderColor: '#198754' }}>
+                                    Cari Komunitas
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="card border-0 shadow-sm rounded-4 p-4 text-center h-100 hover-scale bg-white">
+                                <div className="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: '70px', height: '70px', backgroundColor: '#ffc107' }}>
+                                    <i className="fa-solid fa-trophy fs-3"></i>
+                                </div>
+                                <h5 className="fw-bold text-dark mb-2">Papan Peringkat Kompetitif</h5>
+                                <p className="text-secondary small mb-3">Lihat siapa saja pembaca teraktif minggu ini. Kejar peringkat teratas dan bersaing secara ramah dengan pecinta buku se-tanah air!</p>
+                                <Link href="/leaderboard" className="btn btn-outline-warning btn-sm rounded-pill px-4 py-1.5 fw-semibold mt-auto" style={{ color: '#ffc107', borderColor: '#ffc107' }}>
+                                    Buka Leaderboard
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* WATTPAD PILLAR 1: WRITE */}
+                <div className="row align-items-center pillar-section g-5">
+                    <div className="col-lg-6 text-center text-lg-start">
+                        <h2 className="display-5 fw-bold text-dark mb-3">Tulis ceritamu. Bangun komunitasmu.</h2>
+                        <p className="lead text-secondary mb-4" style={{ fontSize: '1.05rem', lineHeight: '1.7' }}>
+                            Apakah kamu memiliki cerita hebat yang ingin dibagikan? Di BacaYukz, kamu bisa merilis karya per bab, mendapatkan masukan langsung dari pembaca, dan perlahan membangun basis penggemar setiamu sendiri.
+                        </p>
+                        {auth.user ? (
+                            <Link href="/dashboard/books" className="btn btn-wattpad-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                <i className="fa-solid fa-pen-nib me-2"></i>Tulis Karya Sekarang
                             </Link>
-                        </div>
-
-                        {/* Filter & Sort Bar for Search Results */}
-                        <div className="bg-light rounded-4 p-3 border border-light-subtle mb-4 animate-fade-in">
-                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
-                                {/* Category filter pills */}
-                                <div className="d-flex gap-2 overflow-x-auto pb-1 w-100" style={{ whiteSpace: 'nowrap' }}>
-                                    <button
-                                        className={`btn btn-sm rounded-pill px-3 fw-semibold ${activeCategory === 'Semua' ? 'btn-dark' : 'btn-white border text-dark bg-white'}`}
-                                        onClick={() => setActiveCategory('Semua')}
-                                    >
-                                        Semua Kategori
-                                    </button>
-                                    {genres.map((genre) => (
-                                        <button
-                                            key={genre.id}
-                                            className={`btn btn-sm rounded-pill px-3 fw-semibold ${activeCategory === genre.name ? 'btn-dark' : 'btn-white border text-dark bg-white'}`}
-                                            onClick={() => setActiveCategory(genre.name)}
-                                        >
-                                            {genre.name}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                {/* Sort selection dropdown */}
-                                <div className="d-flex align-items-center gap-2 ms-md-auto text-nowrap">
-                                    <span className="text-secondary small fw-semibold"><i className="fa-solid fa-sort me-1"></i>Urutkan:</span>
-                                    <select
-                                        className="form-select form-select-sm rounded-pill border shadow-sm px-3 py-1.5 text-secondary cursor-pointer"
-                                        style={{ width: '140px', fontSize: '0.8rem' }}
-                                        value={sortBy}
-                                        onChange={e => setSortBy(e.target.value)}
-                                    >
-                                        <option value="latest">Terbaru</option>
-                                        <option value="popular">Terpopuler</option>
-                                        <option value="liked">Disukai</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        {filteredSearchResults.length === 0 ? (
-                            <div className="bg-light rounded-4 py-5 text-center border border-dashed border-light-subtle shadow-sm">
-                                <div className="bg-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow-sm" style={{ width: '60px', height: '60px' }}>
-                                    <i className="fa-solid fa-magnifying-glass text-secondary fs-4"></i>
-                                </div>
-                                <h5 className="fw-bold text-dark mb-1">Tidak ditemukan hasil</h5>
-                                <p className="text-secondary small mb-3">Coba gunakan kata kunci lain, bersihkan filter, atau periksa ejaan Anda.</p>
-                                <button onClick={() => { setActiveCategory('Semua'); setSortBy('latest'); }} className="btn btn-primary btn-sm rounded-pill px-4 py-2 text-decoration-none fw-bold shadow-sm" style={{ backgroundColor: '#f28b50', borderColor: '#f28b50' }}>Reset Filter</button>
-                            </div>
                         ) : (
-                            <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
-                                {filteredSearchResults.map((item) => (
+                            <Link href="/register" className="btn btn-wattpad-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                                <i className="fa-solid fa-feather-alt me-2"></i>Mulai Menulis
+                            </Link>
+                        )}
+                    </div>
+                    <div className="col-lg-6 d-flex justify-content-center">
+                        <div className="bg-light rounded-5 p-5 w-100 text-center border position-relative overflow-hidden" style={{ maxWidth: '480px' }}>
+                            <div className="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow mb-4" style={{ width: '80px', height: '80px' }}>
+                                <i className="fa-solid fa-pencil-alt fs-2 text-warning"></i>
+                            </div>
+                            <h4 className="fw-bold text-dark mb-2">Editor Draf Praktis</h4>
+                            <p className="text-secondary small mb-0 mx-auto" style={{ maxWidth: '320px' }}>Simpan draf tulisanmu dengan aman, kelola bab-bab cerita secara teratur, dan terbitkan saat kamu sudah merasa yakin.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* WATTPAD PILLAR 2: READ */}
+                <div className="row align-items-center pillar-section flex-lg-row-reverse g-5">
+                    <div className="col-lg-6 text-center text-lg-start">
+                        <h2 className="display-5 fw-bold text-dark mb-3">Baca cerita orisinal dari mana saja.</h2>
+                        <p className="lead text-secondary mb-4" style={{ fontSize: '1.05rem', lineHeight: '1.7' }}>
+                            Jelajahi petualangan fantasi, kisah romantis yang menghangatkan hati, misteri menegangkan, hingga cerita fiksi ilmiah seru. BacaYukz memudahkanmu menemukan ragam karya terbaik dari kreator lokal langsung di browsermu.
+                        </p>
+                        <Link href="/books" className="btn btn-wattpad-outline rounded-pill px-4 py-2 fw-bold shadow-sm">
+                            <i className="fa-solid fa-magnifying-glass me-2"></i>Jelajahi Perpustakaan
+                        </Link>
+                    </div>
+                    <div className="col-lg-6 d-flex justify-content-center">
+                        <div className="row row-cols-2 g-3 w-100" style={{ maxWidth: '440px' }}>
+                            {bookCollage.slice(0, 4).map((book, idx) => (
+                                <div key={idx} className="col">
+                                    <div className="rounded-3 overflow-hidden shadow-sm" style={{ aspectRatio: '3/4' }}>
+                                        <img src={book.coverUrl} alt={book.title} className="w-100 h-100 object-fit-cover hover-scale" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* SECTION: Buku Terpopuler */}
+                <section className="py-5" id="popular-books">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h3 className="fw-bolder text-dark mb-0">Buku Terpopuler Saat Ini</h3>
+                        <Link href="/books" className="btn btn-sm btn-link text-primary text-decoration-none fw-bold">
+                            Lihat Semua Buku <i className="fa-solid fa-arrow-right ms-1"></i>
+                        </Link>
+                    </div>
+
+                    {popularBooks.length === 0 ? (
+                        <div className="bg-light rounded-3 p-5 text-center border">
+                            <i className="fa-solid fa-box-open text-muted fs-3 mb-2"></i>
+                            <p className="text-muted mb-0">Belum ada koleksi buku yang tersedia.</p>
+                        </div>
+                    ) : (
+                        <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
+                            {popularBooks.map((item) => (
+                                <div key={item.id} className="col d-flex">
                                     <Book
-                                        key={item.id}
                                         id={item.id}
                                         title={item.title}
                                         cover={item.cover}
                                         genre={item.genres && item.genres.length > 0 ? item.genres.map(g => g.name).join(', ') : 'Tanpa Genre'}
                                         href={`/book/${item.slug}`}
+                                        authorName={item.user?.name}
+                                        authorAvatar={item.user?.avatar}
+                                        authorId={item.user?.id}
                                     />
-                                ))}
-                            </div>
-                        )}
-                    </section>
-                ) : (
-                    <>
-                        {/* SECTION 1: Buku Terbaru (Scrollable Horizontal Carousel) */}
-                        <section className="mb-5">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h4 className="fw-bolder text-dark mb-0">Buku Terbaru</h4>
-                            </div>
-
-                            {books.length === 0 ? (
-                                <div className="bg-light rounded-3 p-5 text-center border border-dashed border-light-subtle">
-                                    <i className="fa-regular fa-folder-open text-muted fs-3 mb-2"></i>
-                                    <p className="text-muted mb-0">Belum ada buku terbaru saat ini.</p>
                                 </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                {/* CTA WRITE BANNER */}
+                <section className="mb-5 py-4">
+                    <div className="wattpad-hero p-5 rounded-4 shadow-sm text-center position-relative overflow-hidden">
+                        <div className="position-relative z-1 text-white">
+                            <h3 className="fw-bolder mb-2 fs-2">Tulis ceritamu di BacaYukz.</h3>
+                            <p className="opacity-90 mx-auto mb-4" style={{ maxWidth: '550px' }}>Bergabunglah dengan komunitas pembaca dan penulis terbesar di tanah air. Mulailah menulis bab pertamamu hari ini!</p>
+                            {auth.user ? (
+                                <Link href="/dashboard" className="btn btn-light rounded-pill px-4 py-2.5 fw-bold shadow-sm border-0 text-dark">
+                                    <i className="fa-solid fa-pen-nib me-2"></i>Mulai Menulis Sekarang
+                                </Link>
                             ) : (
-                                <div className="position-relative">
-                                    {showLeftBtn && (
-                                        <button
-                                            onClick={scrollLeft}
-                                            className="btn btn-white shadow border rounded-circle position-absolute top-50 start-0 translate-middle-y z-3 d-none d-md-flex align-items-center justify-content-center hover-scale"
-                                            style={{ width: '44px', height: '44px', backgroundColor: 'rgba(255,255,255,0.95)', color: '#f28b50', left: '-22px' }}
-                                            aria-label="Scroll left"
-                                        >
-                                            <i className="fa-solid fa-chevron-left fs-5"></i>
-                                        </button>
-                                    )}
-                                    {showRightBtn && (
-                                        <button
-                                            onClick={scrollRight}
-                                            className="btn btn-white shadow border rounded-circle position-absolute top-50 end-0 translate-middle-y z-3 d-none d-md-flex align-items-center justify-content-center hover-scale"
-                                            style={{ width: '44px', height: '44px', backgroundColor: 'rgba(255,255,255,0.95)', color: '#f28b50', right: '-22px' }}
-                                            aria-label="Scroll right"
-                                        >
-                                            <i className="fa-solid fa-chevron-right fs-5"></i>
-                                        </button>
-                                    )}
-                                    <div ref={scrollRef} onScroll={checkScrollPosition} className="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 flex-nowrap overflow-x-auto pb-3 custom-horizontal-scroll" style={{ scrollSnapType: 'x mandatory' }}>
-                                        {books.map((item) => (
-                                            <Book
-                                                key={item.id}
-                                                id={item.id}
-                                                title={item.title}
-                                                cover={item.cover}
-                                                href={`/book/${item.slug}`}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
+                                <Link href="/register" className="btn btn-light rounded-pill px-4 py-2.5 fw-bold shadow-sm border-0 text-dark">
+                                    <i className="fa-solid fa-user-plus me-2"></i>Daftar Akun Gratis
+                                </Link>
                             )}
-                        </section>
-
-                        {/* SECTION 2: Buku Berdasarkan Kategori (Filterable Grid) */}
-                        <section className="mb-5 mt-5 pt-3" id="kategori">
-                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-                                <h4 className="fw-bolder text-dark mb-0 text-truncate">Buku Berdasarkan Kategori</h4>
-
-                                {/* Sort Dropdown */}
-                                <div className="d-flex align-items-center gap-2 ms-md-auto">
-                                    <span className="text-secondary small fw-semibold text-nowrap"><i className="fa-solid fa-sort me-1"></i>Urutkan:</span>
-                                    <select
-                                        className="form-select form-select-sm rounded-pill border shadow-sm px-3 py-1.5 text-secondary cursor-pointer"
-                                        style={{ width: '150px', fontSize: '0.85rem' }}
-                                        value={sortBy}
-                                        onChange={e => setSortBy(e.target.value)}
-                                    >
-                                        <option value="latest">Terbaru</option>
-                                        <option value="popular">Terpopuler</option>
-                                        <option value="liked">Disukai</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Filter Pills */}
-                            <div className="d-flex gap-2 mb-4 overflow-x-auto pb-2" style={{ whiteSpace: 'nowrap' }}>
-                                <button
-                                    className={`btn rounded-pill px-4 fw-semibold ${activeCategory === 'Semua' ? 'btn-dark' : 'btn-light border bg-white text-dark'}`}
-                                    onClick={() => setActiveCategory('Semua')}
-                                >
-                                    Semua
-                                </button>
-                                {genres.map((genre) => (
-                                    <button
-                                        key={genre.id}
-                                        className={`btn rounded-pill px-3 fw-semibold ${activeCategory === genre.name ? 'btn-dark' : 'btn-light border bg-white text-dark'}`}
-                                        onClick={() => setActiveCategory(genre.name)}
-                                    >
-                                        {genre.name}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Filtered Grid */}
-                            {filteredBooks.length === 0 ? (
-                                <div className="bg-light rounded-3 p-5 text-center border border-dashed border-light-subtle">
-                                    <i className="fa-solid fa-box-open text-muted fs-3 mb-2"></i>
-                                    <p className="text-muted mb-0">Tidak ada buku dalam kategori "{activeCategory}" saat ini.</p>
-                                </div>
-                            ) : (
-                                <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
-                                    {filteredBooks.map((item) => (
-                                        <Book
-                                            key={item.id}
-                                            id={item.id}
-                                            title={item.title}
-                                            cover={item.cover}
-                                            genre={item.genres && item.genres.length > 0 ? item.genres.map(g => g.name).join(', ') : 'Tanpa Genre'}
-                                            href={`/book/${item.slug}`}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-                    </>
-                )}
+                        </div>
+                    </div>
+                </section>
             </div>
+
+            {/* FOOTER */}
+            <footer className="bg-light border-top mt-auto py-5">
+                <div className="container px-4 px-lg-5">
+                    <div className="row g-4 justify-content-between">
+                        <div className="col-lg-4">
+                            <h5 className="fw-bold text-dark mb-3">BacaYukz</h5>
+                            <p className="text-secondary small mb-3">Platform bercerita sosial digital terbesar untuk mengekspresikan imajinasi dan kreativitas menulismu secara bebas.</p>
+                            <div className="d-flex gap-3 text-secondary">
+                                <a href="https://x.com/zakiekas" className="text-secondary text-decoration-none"><i className="fa-brands fa-twitter fs-5"></i></a>
+                                <a href="https://www.instagram.com/zakiekas_/" className="text-secondary text-decoration-none"><i className="fa-brands fa-instagram fs-5"></i></a>
+                                <a href="https://github.com/zakiekasa/" className="text-secondary text-decoration-none"><i className="fa-brands fa-github fs-5"></i></a>
+                            </div>
+                        </div>
+                        <div className="col-md-4 col-lg-3">
+                            <h6 className="fw-bold text-dark mb-3">Hubungi Kami</h6>
+                            <p className="text-secondary small mb-2"><i className="fa-regular fa-envelope me-2"></i> zakieka82@gmail.com</p>
+                            <p className="text-secondary small"><i className="fa-solid fa-location-dot me-2"></i> Yogyakarta, Indonesia</p>
+                        </div>
+                    </div>
+                    <hr className="my-4 border-light-subtle" />
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        <span className="text-secondary small">© {new Date().getFullYear()} BacaYukz. Terinspirasi oleh platform sosial bercerita dunia. Hak Cipta Dilindungi.</span>
+                        <div className="d-flex gap-3 small">
+                            <Link href="/download" className="text-secondary text-decoration-none">Unduh Aplikasi</Link>
+                            <a href="#" className="text-secondary text-decoration-none">Kebijakan Privasi</a>
+                            <a href="#" className="text-secondary text-decoration-none">Syarat & Ketentuan</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 };
