@@ -132,14 +132,15 @@ export default function AuthorProfile({ author, books = [] }: AuthorProps) {
                     ) : (
                         <div className="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
                             {books.map((book) => (
-                                <Book
-                                    key={book.id}
-                                    id={book.id}
-                                    title={book.title}
-                                    cover={book.cover}
-                                    genre={book.genres && book.genres.length > 0 ? book.genres.map(g => g.name).join(', ') : 'Tanpa Genre'}
-                                    href={`/book/${book.slug}`}
-                                />
+                                <div key={book.id} className="col d-flex">
+                                    <Book
+                                        id={book.id}
+                                        title={book.title}
+                                        cover={book.cover}
+                                        genre={book.genres && book.genres.length > 0 ? book.genres.map(g => g.name).join(', ') : 'Tanpa Genre'}
+                                        href={`/book/${book.slug}`}
+                                    />
+                                </div>
                             ))}
                         </div>
                     )}
