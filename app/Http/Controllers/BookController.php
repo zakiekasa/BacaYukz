@@ -36,24 +36,31 @@ class BookController extends Controller
         if($request->hasFile('cover')) {
             $file = $request->file('cover');
             
-            if (extension_loaded('gd')) {
-                $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
-                $manager = new ImageManager(new Driver());
-                $image = $manager->decode($file);
-                $image->cover(720, 1152);
-                $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
-                Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+            if (getenv('VERCEL') || getenv('LAMBDA_TASK_ROOT') || file_exists('/var/task')) {
+                $imageData = file_get_contents($file->getRealPath());
+                $mimeType = $file->getMimeType() ?: 'image/png';
+                $coverValue = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
             } else {
-                $extension = $file->getClientOriginalExtension() ?: 'png';
-                $fileName = Str::slug($validated['title']) . '-' . time() . '.' . $extension;
-                $file->storeAs('covers', $fileName, 'public');
+                if (extension_loaded('gd')) {
+                    $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
+                    $manager = new ImageManager(new Driver());
+                    $image = $manager->decode($file);
+                    $image->cover(720, 1152);
+                    $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
+                    Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+                } else {
+                    $extension = $file->getClientOriginalExtension() ?: 'png';
+                    $fileName = Str::slug($validated['title']) . '-' . time() . '.' . $extension;
+                    $file->storeAs('covers', $fileName, 'public');
+                }
+                $coverValue = $fileName;
             }
 
             $book = Book::create([
                 'user_id' => auth()->id(),
                 'title' => $validated['title'],
                 'description' => $validated['description'],
-                'cover' => $fileName,
+                'cover' => $coverValue,
             ]);
 
             $book->genres()->sync($request->genres);
@@ -74,7 +81,7 @@ class BookController extends Controller
                 'id' => $book->id,
                 'title' => $book->title,
                 'slug' => $book->slug,
-                'cover' => $book->cover ? (str_starts_with($book->cover, 'http') ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
+                'cover' => $book->cover ? ((str_starts_with($book->cover, 'http') || str_starts_with($book->cover, 'data:')) ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
                 'description' => $book->description,
                 'chaptersCount' => $book->chapters_count,
                 'viewsSum' => (int) ($book->chapters_sum_view ?? 0),
@@ -107,7 +114,7 @@ class BookController extends Controller
                 'id' => $book->id,
                 'title' => $book->title,
                 'description' => $book->description,
-                'cover' => $book->cover ? (str_starts_with($book->cover, 'http') ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
+                'cover' => $book->cover ? ((str_starts_with($book->cover, 'http') || str_starts_with($book->cover, 'data:')) ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
                 'genres' => $book->genres->map(function ($genre) {
                     return [
                         'id' => $genre->id,
@@ -134,26 +141,33 @@ class BookController extends Controller
         ]);
 
         if ($request->hasFile('cover')) {
-            if ($book->cover && !str_starts_with($book->cover, 'http')) {
+            if ($book->cover && !str_starts_with($book->cover, 'http') && !str_starts_with($book->cover, 'data:')) {
                 Storage::disk('public')->delete('covers/' . $book->cover);
             }
 
             $file = $request->file('cover');
             
-            if (extension_loaded('gd')) {
-                $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
-                $manager = new ImageManager(new Driver());
-                $image = $manager->decode($file);
-                $image->cover(720, 1152);
-                $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
-                Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+            if (getenv('VERCEL') || getenv('LAMBDA_TASK_ROOT') || file_exists('/var/task')) {
+                $imageData = file_get_contents($file->getRealPath());
+                $mimeType = $file->getMimeType() ?: 'image/png';
+                $coverValue = 'data:' . $mimeType . ';base64,' . base64_encode($imageData);
             } else {
-                $extension = $file->getClientOriginalExtension() ?: 'png';
-                $fileName = Str::slug($validated['title']) . '-' . time() . '.' . $extension;
-                $file->storeAs('covers', $fileName, 'public');
+                if (extension_loaded('gd')) {
+                    $fileName = Str::slug($validated['title']) . '-' . time() . '.webp';
+                    $manager = new ImageManager(new Driver());
+                    $image = $manager->decode($file);
+                    $image->cover(720, 1152);
+                    $encoded = $image->encodeUsingFileExtension('webp', quality: 85);
+                    Storage::disk('public')->put('covers/' . $fileName, $encoded->toString());
+                } else {
+                    $extension = $file->getClientOriginalExtension() ?: 'png';
+                    $fileName = Str::slug($validated['title']) . '-' . time() . '.' . $extension;
+                    $file->storeAs('covers', $fileName, 'public');
+                }
+                $coverValue = $fileName;
             }
 
-            $validated['cover'] = $fileName;
+            $validated['cover'] = $coverValue;
         } else {
             unset($validated['cover']);
         }
@@ -192,7 +206,7 @@ class BookController extends Controller
                 'id' => $book->id,
                 'title' => $book->title,
                 'slug' => $book->slug,
-                'cover' => $book->cover ? (str_starts_with($book->cover, 'http') ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
+                'cover' => $book->cover ? ((str_starts_with($book->cover, 'http') || str_starts_with($book->cover, 'data:')) ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
                 'description' => $book->description,
                 'chaptersCount' => $book->chapters_count,
                 'createdAt' => $book->created_at->format('Y-m-d'),
@@ -263,7 +277,7 @@ class BookController extends Controller
                 'id' => $book->id,
                 'title' => $book->title,
                 'slug' => $book->slug,
-                'cover' => $book->cover ? (str_starts_with($book->cover, 'http') ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
+                'cover' => $book->cover ? ((str_starts_with($book->cover, 'http') || str_starts_with($book->cover, 'data:')) ? $book->cover : asset('storage/covers/' . $book->cover)) : null,
                 'description' => $book->description,
                 'total_minutes' => round($totalDurationSeconds / 60, 1),
                 'last_read_at' => $lastRead ? $lastRead->diffForHumans() : null,

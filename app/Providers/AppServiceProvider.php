@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
-        if (app()->isProduction() || getenv('VERCEL')) {
+        if (app()->isProduction() || getenv('VERCEL') || getenv('LAMBDA_TASK_ROOT') || file_exists('/var/task')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
     }

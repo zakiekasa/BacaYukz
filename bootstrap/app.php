@@ -7,7 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 
 // Set Vercel-specific writable cache and storage directories
-if (getenv('VERCEL')) {
+if (getenv('VERCEL') || getenv('LAMBDA_TASK_ROOT') || file_exists('/var/task')) {
     foreach ([
         'APP_SERVICES_CACHE' => '/tmp/services.php',
         'APP_PACKAGES_CACHE' => '/tmp/packages.php',
@@ -53,21 +53,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Throwable $e) {
-            header('Content-Type: text/plain', true, 500);
-            echo "EXCEPTION DIAGNOSTIC:\n";
-            echo get_class($e) . ": " . $e->getMessage() . "\n\n";
-            echo "STACK TRACE:\n" . $e->getTraceAsString() . "\n\n";
-            if ($prev = $e->getPrevious()) {
-                echo "PREVIOUS EXCEPTION:\n";
-                echo get_class($prev) . ": " . $prev->getMessage() . "\n\n";
-                echo "PREVIOUS STACK TRACE:\n" . $prev->getTraceAsString() . "\n\n";
-            }
-            exit;
-        });
+        //
     })->create();
 
-if (getenv('VERCEL')) {
+if (getenv('VERCEL') || getenv('LAMBDA_TASK_ROOT') || file_exists('/var/task')) {
     $app->useStoragePath('/tmp/storage');
 }
 
