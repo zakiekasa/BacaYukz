@@ -34,21 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Throwable $e) {
-            header('Content-Type: text/plain', true, 500);
-            echo "EXCEPTION DIAGNOSTIC:\n";
-            echo get_class($e) . ": " . $e->getMessage() . "\n\n";
-            echo "STACK TRACE:\n" . $e->getTraceAsString() . "\n\n";
-            if ($prev = $e->getPrevious()) {
-                echo "PREVIOUS EXCEPTION:\n";
-                echo get_class($prev) . ": " . $prev->getMessage() . "\n\n";
-                echo "PREVIOUS STACK TRACE:\n" . $prev->getTraceAsString() . "\n\n";
-            }
-            exit;
-        });
-        $exceptions->report(function (\Throwable $e) {
-            error_log("LARAVEL CAUGHT EXCEPTION: " . $e->getMessage() . "\n" . $e->getTraceAsString());
-        });
+        //
     })->create();
 
 if (getenv('VERCEL')) {
