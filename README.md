@@ -83,3 +83,13 @@ composer run dev
 ```
 Setelah berjalan, akses aplikasi melalui browser pada alamat:
 - **Web App**: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+---
+
+## 🔑 Akun Uji Coba Default
+
+Untuk menjelajahi Dashboard Penulis dan fitur-fitur interaktif di dalam platform BacaYukz, Anda dapat masuk langsung menggunakan salah satu dari akun uji coba hasil *seeding* berikut:
+
+- **Alamat Email**: `user1@gmail.com` (atau `user2@gmail.com`, `user3@gmail.com`, `user4@gmail.com`, `user5@gmail.com`)
+- **Kata Sandi**: `password`
+
