@@ -1,5 +1,11 @@
 # BacaYukz 📚✨
 
+[![Laravel](https://img.shields.io/badge/Laravel_11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap_5-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
+
 BacaYukz adalah platform bercerita sosial digital (*social storytelling*) berbasis web yang dirancang khusus untuk menghubungkan penulis independen dan pembaca di Indonesia. Terinspirasi oleh konsep Wattpad dan Medium, BacaYukz memungkinkan penulis mempublikasikan karya mereka bab-demi-bab secara gratis, sementara pembaca dapat menikmati, menyukai, mengomentari, dan mendukung penulis favorit mereka secara langsung.
 
 ---
