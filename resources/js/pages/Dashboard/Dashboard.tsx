@@ -142,7 +142,9 @@ const Dashboard = ({ books, totalBooks, totalChapters, totalReaders }: Dashboard
                                             <td className="py-3 text-wrap">
                                                 <div className="text-dark fw-bold mb-1">{book.title}</div>
                                                 <p className="text-secondary small mb-1" style={{ fontSize: '0.85rem', maxWidth: '400px' }}>
-                                                    {book.description}
+                                                    {(book.description ?? '').length > 120
+                                                        ? `${(book.description ?? '').substring(0, 120)}...`
+                                                        : book.description}
                                                 </p>
                                                 <div className="d-flex align-items-center gap-2">
                                                     <span className="badge bg-light text-dark border border-light small font-monospace">
