@@ -81,8 +81,20 @@ type ChapterProps = {
  * the chapter content, the author direct support card widget, and comments.
  */
 export default function ChapterDetail({ book, chapter, previous_chapter, next_chapter, quiz, attempt }: ChapterProps) {
+    const { auth, flash } = usePage().props as any;
     const [scrollPercent, setScrollPercent] = useState(0);
-    const [targetReachedShown, setTargetReachedShown] = useState(false);
+    const [targetReachedShown, setTargetReachedShown] = useState(() => {
+        if (typeof window !== 'undefined' && auth?.user?.id) {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+            const alertKey = `daily_target_shown_${auth.user.id}_${todayStr}`;
+            return localStorage.getItem(alertKey) === 'true';
+        }
+        return false;
+    });
 
     // Text-to-Speech States
     const [isTtsSupported, setIsTtsSupported] = useState(false);
@@ -173,7 +185,11 @@ export default function ChapterDetail({ book, chapter, previous_chapter, next_ch
             utterance.rate = speechRate;
 
             const voices = window.speechSynthesis.getVoices();
-            const indonesianVoice = voices.find(v => v.lang.startsWith('id') || v.lang.includes('ID'));
+            // Prioritize online, natural, or Google voices for natural intonation
+            const indonesianVoice = voices.find(v =>
+                (v.lang.startsWith('id') || v.lang.includes('ID')) &&
+                (v.name.toLowerCase().includes('online') || v.name.toLowerCase().includes('natural') || v.name.toLowerCase().includes('google'))
+            ) || voices.find(v => v.lang.startsWith('id') || v.lang.includes('ID'));
             if (indonesianVoice) {
                 utterance.voice = indonesianVoice;
             }
@@ -217,7 +233,11 @@ export default function ChapterDetail({ book, chapter, previous_chapter, next_ch
                 utterance.rate = rate;
 
                 const voices = window.speechSynthesis.getVoices();
-                const indonesianVoice = voices.find(v => v.lang.startsWith('id') || v.lang.includes('ID'));
+                // Prioritize online, natural, or Google voices for natural intonation
+                const indonesianVoice = voices.find(v =>
+                    (v.lang.startsWith('id') || v.lang.includes('ID')) &&
+                    (v.name.toLowerCase().includes('online') || v.name.toLowerCase().includes('natural') || v.name.toLowerCase().includes('google'))
+                ) || voices.find(v => v.lang.startsWith('id') || v.lang.includes('ID'));
                 if (indonesianVoice) {
                     utterance.voice = indonesianVoice;
                 }
@@ -261,8 +281,8 @@ export default function ChapterDetail({ book, chapter, previous_chapter, next_ch
         const handleScroll = () => {
             const currentScrollPosition = window.scrollY;
             const totalScrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const calculatedScrollPercentage = totalScrollableHeight > 0 
-                ? (currentScrollPosition / totalScrollableHeight) * 100 
+            const calculatedScrollPercentage = totalScrollableHeight > 0
+                ? (currentScrollPosition / totalScrollableHeight) * 100
                 : 0;
 
             setScrollPercent(calculatedScrollPercentage);
@@ -274,8 +294,6 @@ export default function ChapterDetail({ book, chapter, previous_chapter, next_ch
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
-
-    const { auth, flash } = usePage().props as any;
 
     useEffect(() => {
         const notyf = new Notyf({
@@ -309,24 +327,33 @@ export default function ChapterDetail({ book, chapter, previous_chapter, next_ch
                     duration_seconds: 30
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    console.log(`Reading duration logged. Current streak: ${data.current_streak} days. Today's duration: ${data.today_minutes} mins`);
-                    
-                    if (data.today_minutes >= data.daily_target_minutes && !targetReachedShown) {
-                        setTargetReachedShown(true);
-                        Swal.fire({
-                            title: 'Target Harian Tercapai! 🎉',
-                            text: `Selamat! Anda telah membaca selama ${data.today_minutes} menit hari ini, memenuhi target harian Anda (${data.daily_target_minutes} menit).`,
-                            icon: 'success',
-                            confirmButtonColor: '#FF5A00',
-                            confirmButtonText: 'Mantap!'
-                        });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log(`Reading duration logged. Current streak: ${data.current_streak} days. Today's duration: ${data.today_minutes} mins`);
+
+                        const today = new Date();
+                        const year = today.getFullYear();
+                        const month = String(today.getMonth() + 1).padStart(2, '0');
+                        const day = String(today.getDate()).padStart(2, '0');
+                        const todayStr = `${year}-${month}-${day}`;
+                        const alertKey = `daily_target_shown_${auth.user.id}_${todayStr}`;
+                        const isAlertShown = localStorage.getItem(alertKey) === 'true';
+
+                        if (data.today_minutes >= data.daily_target_minutes && !isAlertShown && !targetReachedShown) {
+                            localStorage.setItem(alertKey, 'true');
+                            setTargetReachedShown(true);
+                            Swal.fire({
+                                title: 'Target Harian Tercapai! 🎉',
+                                text: `Selamat! Anda telah membaca selama ${data.today_minutes} menit hari ini, memenuhi target harian Anda (${data.daily_target_minutes} menit).`,
+                                icon: 'success',
+                                confirmButtonColor: '#FF5A00',
+                                confirmButtonText: 'Mantap!'
+                            });
+                        }
                     }
-                }
-            })
-            .catch(err => console.error('Streak update error:', err));
+                })
+                .catch(err => console.error('Streak update error:', err));
         }, 30000);
 
         return () => clearInterval(interval);

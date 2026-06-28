@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/blank-react-starter-kit",
+    "name": "zakiekasa/bacayukz",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Platform bercerita sosial digital (social storytelling) berbasis web untuk menghubungkan penulis dan pembaca di Indonesia.",
     "keywords": [
         "laravel",
         "framework"

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('books', function (Blueprint $table) {
+            $table->dropUnique('books_cover_unique');
             $table->longText('cover')->nullable()->change();
         });
 

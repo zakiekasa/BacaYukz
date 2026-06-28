@@ -35,8 +35,8 @@ class LeaderboardController extends Controller
         if ($latestDate->equalTo($today) || $latestDate->equalTo($yesterday)) {
             $currentStreak = 1;
             for ($i = 0; $i < count($dates) - 1; $i++) {
-                $diff = $dates[$i]->diffInDays($dates[$i + 1]);
-                if ($diff === 1) {
+                $diff = abs($dates[$i]->diffInDays($dates[$i + 1]));
+                if ($diff == 1) {
                     $currentStreak++;
                 } elseif ($diff > 1) {
                     break;

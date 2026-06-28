@@ -170,6 +170,28 @@ class DatabaseSeeder extends Seeder
                 'avatar_url' => 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=150&h=150&q=80',
             ]));
         }
+
+        // 7. Create Dummy Reading Logs for Streaks and Leaderboard
+        $chapters = Chapter::all();
+        foreach ($users as $uIndex => $user) {
+            // Generate a streak of 3 to 7 consecutive days ending today
+            $streakDays = rand(3, 7);
+            for ($day = 0; $day < $streakDays; $day++) {
+                $readDate = now()->subDays($day)->format('Y-m-d');
+                
+                // Read 1-2 random chapters per day
+                $dailyChapters = $chapters->random(rand(1, 2));
+                foreach ($dailyChapters as $chapter) {
+                    \App\Models\ReadingLog::create([
+                        'user_id' => $user->id,
+                        'chapter_id' => $chapter->id,
+                        'read_date' => $readDate,
+                        // Make some users read more to differentiate leaderboard ranking
+                        'duration_seconds' => rand(900, 3600) + (($uIndex === 0) ? 5000 : 0),
+                    ]);
+                }
+            }
+        }
     }
 }
 
