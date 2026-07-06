@@ -2,27 +2,29 @@ import React from 'react';
 import { useForm, Link, Head } from '@inertiajs/react';
 
 type FormFields = {
-    email: string,
-    password: string
+    token: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
 };
 
-const Login = ({ status }: { status?: string }) => {
-    const { data, setData, errors, processing, reset, post } = useForm<FormFields>({
-        email: '',
-        password: ''
+const ResetPassword = ({ token, email }: { token: string; email?: string }) => {
+    const { data, setData, errors, processing, post } = useForm<FormFields>({
+        token: token,
+        email: email || '',
+        password: '',
+        password_confirmation: '',
     });
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        post('/login', {
-            onSuccess: () => reset('email', 'password')
-        });
+        post('/reset-password');
     }
 
     return (
         <div className="min-vh-100 d-flex align-items-stretch font-sans bg-body-tertiary">
-            <Head title="Login - BacaYukz" />
-
+            <Head title="Setel Ulang Kata Sandi - BacaYukz" />
+            
             <style>{`
                 .auth-gradient-sidebar {
                     background: linear-gradient(135deg, #FF5A00 0%, #FF7B25 100%);
@@ -58,27 +60,27 @@ const Login = ({ status }: { status?: string }) => {
                     {/* Left Column: Visual Branding Sidebar (Desktop Only) */}
                     <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-between auth-gradient-sidebar p-5 text-white position-relative overflow-hidden">
                         <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '20px 20px' }}></div>
-
+                        
                         <div className="position-relative z-1">
                             <Link href="/" className="fs-3 fw-bold text-white text-decoration-none d-inline-flex align-items-center gap-2">
                                 <i className="fa-solid fa-layer-group"></i>
                                 BacaYukz
                             </Link>
                         </div>
-
+                        
                         <div className="my-auto position-relative z-1" style={{ maxWidth: '460px' }}>
-                            <h1 className="display-4 fw-bold mb-3 lh-sm">Masuk & Lanjutkan Petualanganmu.</h1>
+                            <h1 className="display-4 fw-bold mb-3 lh-sm">Buat Kata Sandi Baru.</h1>
                             <p className="lead opacity-90">
-                                Akses kembali akun menulismu, jelajahi ribuan cerita menarik buatan kreator lokal, dan bagikan pendapatmu secara bebas.
+                                Harap masukkan email Anda kembali beserta kata sandi baru yang aman dan mudah diingat.
                             </p>
                         </div>
-
+                        
                         <div className="position-relative z-1 small opacity-75">
                             &copy; {new Date().getFullYear()} BacaYukz. Hak Cipta Dilindungi.
                         </div>
                     </div>
 
-                    {/* Right Column: Login Card Form */}
+                    {/* Right Column: Reset Password Form */}
                     <div className="col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5">
                         <div className="w-100" style={{ maxWidth: '400px' }}>
                             <div className="text-center mb-4 d-lg-none">
@@ -87,18 +89,12 @@ const Login = ({ status }: { status?: string }) => {
                                     BacaYukz
                                 </Link>
                             </div>
-
+                            
                             <div className="card border-0 bg-white shadow-sm rounded-4 p-4 p-sm-5">
                                 <div className="text-center mb-4">
-                                    <h4 className="fw-bold text-dark mb-1">Selamat Datang Kembali</h4>
-                                    <p className="text-secondary small">Masukkan detail akun Anda untuk masuk</p>
+                                    <h4 className="fw-bold text-dark mb-1">Setel Ulang Kata Sandi</h4>
+                                    <p className="text-secondary small">Masukkan detail baru untuk akun Anda</p>
                                 </div>
-
-                                {status && (
-                                    <div className="alert alert-success small mb-3 py-2 text-center" role="alert">
-                                        {status}
-                                    </div>
-                                )}
 
                                 <form onSubmit={handleSubmit} className="d-flex flex-column gap-3">
                                     {/* Email */}
@@ -117,21 +113,30 @@ const Login = ({ status }: { status?: string }) => {
 
                                     {/* Password */}
                                     <div>
-                                        <div className="d-flex justify-content-between align-items-center mb-1">
-                                            <label className="form-label fw-semibold text-dark small mb-0">Kata Sandi</label>
-                                        </div>
+                                        <label className="form-label fw-semibold text-dark small">Kata Sandi Baru</label>
                                         <input
                                             type="password"
                                             className={`form-control py-2.5 rounded-3 text-secondary border-light bg-body-tertiary ${errors.password && 'is-invalid'}`}
-                                            placeholder="Masukkan kata sandi Anda"
+                                            placeholder="Buat kata sandi minimal 8 karakter"
                                             required
                                             onChange={(e) => setData('password', e.target.value)}
                                             value={data.password}
                                         />
                                         {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-                                        <Link href="/forgot-password" className="link-brand mt-5 fw-semibold text-decoration-none small">
-                                            Lupa Kata Sandi?
-                                        </Link>
+                                    </div>
+
+                                    {/* Confirm Password */}
+                                    <div>
+                                        <label className="form-label fw-semibold text-dark small">Konfirmasi Kata Sandi Baru</label>
+                                        <input
+                                            type="password"
+                                            className={`form-control py-2.5 rounded-3 text-secondary border-light bg-body-tertiary ${errors.password_confirmation && 'is-invalid'}`}
+                                            placeholder="Ulangi kata sandi baru"
+                                            required
+                                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                                            value={data.password_confirmation}
+                                        />
+                                        {errors.password_confirmation && <div className="invalid-feedback">{errors.password_confirmation}</div>}
                                     </div>
 
                                     {/* Submit Button */}
@@ -143,21 +148,16 @@ const Login = ({ status }: { status?: string }) => {
                                         {processing ? (
                                             <>
                                                 <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Masuk...
+                                                Menyimpan...
                                             </>
                                         ) : (
                                             <>
-                                                <i className="fa-solid fa-right-to-bracket"></i>
-                                                Masuk Sekarang
+                                                <i className="fa-solid fa-key"></i>
+                                                Simpan Kata Sandi
                                             </>
                                         )}
                                     </button>
                                 </form>
-
-                                <div className="text-center mt-4 pt-2 border-top border-light">
-                                    <span className="text-secondary small">Belum punya akun? </span>
-                                    <Link href="/register" className="link-brand fw-bold text-decoration-none small">Daftar Gratis</Link>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,4 +167,4 @@ const Login = ({ status }: { status?: string }) => {
     );
 };
 
-export default Login;
+export default ResetPassword;

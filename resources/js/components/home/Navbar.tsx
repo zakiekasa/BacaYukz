@@ -7,8 +7,16 @@ import React, { useState, useEffect, useRef } from 'react';
  * and a theme toggler (light/dark mode).
  */
 export default function Navbar() {
-    const { auth } = usePage().props as any;
+    const { url, props } = usePage();
+    const { auth } = props as any;
     const [searchQuery, setSearchQuery] = useState('');
+
+    const isActive = (path: string) => {
+        if (path === '/') {
+            return url === '/';
+        }
+        return url.startsWith(path);
+    };
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -108,6 +116,28 @@ export default function Navbar() {
                 .notification-item:hover {
                     background-color: #f8f9fa;
                 }
+                .nav-link {
+                    position: relative;
+                    transition: color 0.2s ease;
+                }
+                .nav-link.active-nav-link {
+                    color: #FF5A00 !important;
+                }
+                .nav-link.active-nav-link::after {
+                    content: '';
+                    position: absolute;
+                    bottom: -6px;
+                    left: 0;
+                    width: 100%;
+                    height: 2px;
+                    background-color: #FF5A00;
+                    border-radius: 2px;
+                }
+                @media (max-width: 991.98px) {
+                    .nav-link.active-nav-link::after {
+                        display: none;
+                    }
+                }
             `}</style>
             <div className="container-fluid px-4 px-lg-5">
 
@@ -131,23 +161,53 @@ export default function Navbar() {
                 <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`} id="navbarSupportedContent">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0 gap-3 pt-3 pt-lg-0">
                         <li className="nav-item">
-                            <Link className="nav-link text-dark" href="/">Beranda</Link>
+                            <Link
+                                className={`nav-link fw-semibold ${isActive('/') ? 'active-nav-link' : 'text-dark'}`}
+                                href="/"
+                                aria-current={isActive('/') ? 'page' : undefined}
+                            >
+                                Beranda
+                            </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link text-dark" href="/books">Buku</Link>
+                            <Link
+                                className={`nav-link fw-semibold ${isActive('/books') ? 'active-nav-link' : 'text-dark'}`}
+                                href="/books"
+                                aria-current={isActive('/books') ? 'page' : undefined}
+                            >
+                                Buku
+                            </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link text-dark" href="/communities">Komunitas</Link>
+                            <Link
+                                className={`nav-link fw-semibold ${isActive('/communities') ? 'active-nav-link' : 'text-dark'}`}
+                                href="/communities"
+                                aria-current={isActive('/communities') ? 'page' : undefined}
+                            >
+                                Komunitas
+                            </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link text-dark" href="/leaderboard">Leaderboard</Link>
+                            <Link
+                                className={`nav-link fw-semibold ${isActive('/leaderboard') ? 'active-nav-link' : 'text-dark'}`}
+                                href="/leaderboard"
+                                aria-current={isActive('/leaderboard') ? 'page' : undefined}
+                            >
+                                Leaderboard
+                            </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link text-dark" href="/download">Unduh</Link>
+                            <Link
+                                className={`nav-link fw-semibold ${isActive('/download') ? 'active-nav-link' : 'text-dark'}`}
+                                href="/download"
+                                aria-current={isActive('/download') ? 'page' : undefined}
+                            >
+                                Unduh
+                            </Link>
                         </li>
                     </ul>
 
@@ -155,7 +215,12 @@ export default function Navbar() {
                     <div className="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 mt-3 mt-lg-0 pt-2 pt-lg-0 border-top border-light border-lg-0">
                         {auth.user ? (
                             <div className="d-flex align-items-center gap-3 w-100 justify-content-between justify-content-lg-start">
-                                <Link href="/dashboard" className="text-dark text-decoration-none fw-bold small my-1 my-lg-0">Dashboard</Link>
+                                <Link
+                                    href="/dashboard"
+                                    className={`text-decoration-none fw-bold small my-1 my-lg-0 ${isActive('/dashboard') ? 'text-primary' : 'text-dark'}`}
+                                >
+                                    Dashboard
+                                </Link>
 
                                 {/* Notification Icon & Dropdown */}
                                 <div className="position-relative" ref={dropdownRef}>

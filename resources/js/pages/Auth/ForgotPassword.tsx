@@ -2,27 +2,23 @@ import React from 'react';
 import { useForm, Link, Head } from '@inertiajs/react';
 
 type FormFields = {
-    email: string,
-    password: string
+    email: string;
 };
 
-const Login = ({ status }: { status?: string }) => {
-    const { data, setData, errors, processing, reset, post } = useForm<FormFields>({
+const ForgotPassword = ({ status }: { status?: string }) => {
+    const { data, setData, errors, processing, post } = useForm<FormFields>({
         email: '',
-        password: ''
     });
 
     function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        post('/login', {
-            onSuccess: () => reset('email', 'password')
-        });
+        post('/forgot-password');
     }
 
     return (
         <div className="min-vh-100 d-flex align-items-stretch font-sans bg-body-tertiary">
-            <Head title="Login - BacaYukz" />
-
+            <Head title="Lupa Kata Sandi - BacaYukz" />
+            
             <style>{`
                 .auth-gradient-sidebar {
                     background: linear-gradient(135deg, #FF5A00 0%, #FF7B25 100%);
@@ -58,27 +54,27 @@ const Login = ({ status }: { status?: string }) => {
                     {/* Left Column: Visual Branding Sidebar (Desktop Only) */}
                     <div className="col-lg-6 d-none d-lg-flex flex-column justify-content-between auth-gradient-sidebar p-5 text-white position-relative overflow-hidden">
                         <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, #fff 10%, transparent 11%)', backgroundSize: '20px 20px' }}></div>
-
+                        
                         <div className="position-relative z-1">
                             <Link href="/" className="fs-3 fw-bold text-white text-decoration-none d-inline-flex align-items-center gap-2">
                                 <i className="fa-solid fa-layer-group"></i>
                                 BacaYukz
                             </Link>
                         </div>
-
+                        
                         <div className="my-auto position-relative z-1" style={{ maxWidth: '460px' }}>
-                            <h1 className="display-4 fw-bold mb-3 lh-sm">Masuk & Lanjutkan Petualanganmu.</h1>
+                            <h1 className="display-4 fw-bold mb-3 lh-sm">Setel Ulang Kata Sandimu.</h1>
                             <p className="lead opacity-90">
-                                Akses kembali akun menulismu, jelajahi ribuan cerita menarik buatan kreator lokal, dan bagikan pendapatmu secara bebas.
+                                Masukkan email Anda dan kami akan mengirimkan tautan untuk mengatur ulang kata sandi Anda agar dapat melanjutkan aktivitas membaca dan menulis.
                             </p>
                         </div>
-
+                        
                         <div className="position-relative z-1 small opacity-75">
                             &copy; {new Date().getFullYear()} BacaYukz. Hak Cipta Dilindungi.
                         </div>
                     </div>
 
-                    {/* Right Column: Login Card Form */}
+                    {/* Right Column: Forgot Password Form */}
                     <div className="col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-md-5">
                         <div className="w-100" style={{ maxWidth: '400px' }}>
                             <div className="text-center mb-4 d-lg-none">
@@ -87,11 +83,11 @@ const Login = ({ status }: { status?: string }) => {
                                     BacaYukz
                                 </Link>
                             </div>
-
+                            
                             <div className="card border-0 bg-white shadow-sm rounded-4 p-4 p-sm-5">
                                 <div className="text-center mb-4">
-                                    <h4 className="fw-bold text-dark mb-1">Selamat Datang Kembali</h4>
-                                    <p className="text-secondary small">Masukkan detail akun Anda untuk masuk</p>
+                                    <h4 className="fw-bold text-dark mb-1">Lupa Kata Sandi?</h4>
+                                    <p className="text-secondary small">Kami akan mengirimkan link reset password</p>
                                 </div>
 
                                 {status && (
@@ -115,25 +111,6 @@ const Login = ({ status }: { status?: string }) => {
                                         {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                                     </div>
 
-                                    {/* Password */}
-                                    <div>
-                                        <div className="d-flex justify-content-between align-items-center mb-1">
-                                            <label className="form-label fw-semibold text-dark small mb-0">Kata Sandi</label>
-                                        </div>
-                                        <input
-                                            type="password"
-                                            className={`form-control py-2.5 rounded-3 text-secondary border-light bg-body-tertiary ${errors.password && 'is-invalid'}`}
-                                            placeholder="Masukkan kata sandi Anda"
-                                            required
-                                            onChange={(e) => setData('password', e.target.value)}
-                                            value={data.password}
-                                        />
-                                        {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-                                        <Link href="/forgot-password" className="link-brand mt-5 fw-semibold text-decoration-none small">
-                                            Lupa Kata Sandi?
-                                        </Link>
-                                    </div>
-
                                     {/* Submit Button */}
                                     <button
                                         type="submit"
@@ -143,20 +120,21 @@ const Login = ({ status }: { status?: string }) => {
                                         {processing ? (
                                             <>
                                                 <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                Masuk...
+                                                Mengirim...
                                             </>
                                         ) : (
                                             <>
-                                                <i className="fa-solid fa-right-to-bracket"></i>
-                                                Masuk Sekarang
+                                                <i className="fa-solid fa-paper-plane"></i>
+                                                Kirim Link Reset
                                             </>
                                         )}
                                     </button>
                                 </form>
 
                                 <div className="text-center mt-4 pt-2 border-top border-light">
-                                    <span className="text-secondary small">Belum punya akun? </span>
-                                    <Link href="/register" className="link-brand fw-bold text-decoration-none small">Daftar Gratis</Link>
+                                    <Link href="/login" className="link-brand fw-bold text-decoration-none small">
+                                        <i className="fa-solid fa-arrow-left me-2"></i>Kembali ke Halaman Masuk
+                                    </Link>
                                 </div>
                             </div>
                         </div>
@@ -167,4 +145,4 @@ const Login = ({ status }: { status?: string }) => {
     );
 };
 
-export default Login;
+export default ForgotPassword;

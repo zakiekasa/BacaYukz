@@ -9,6 +9,9 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 
 
+use App\Http\Controllers\Auth\PasswordResetController;
+
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/books', [HomeController::class, 'books'])->name('books.index');
 Route::get('/book/{book:slug}', [HomeController::class, 'bookDetail'])->name('book.show');
@@ -58,4 +61,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
     Route::get('/login', [LoginController::class, 'index'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+    
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 });
