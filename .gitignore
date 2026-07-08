@@ -27,4 +27,12 @@ yarn-error.log
 /.vscode
 /.zed
 /dist
+.DS_Store
+/bacayukz
+/laravel
+/check_books.php
+/env.text
+/app/Http/Controllers/Fitur upload buku.png
+
+
 

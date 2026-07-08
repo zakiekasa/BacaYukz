@@ -22,7 +22,7 @@ class PasswordResetController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate([
-            'email' => 'required|email:rfc,dns'
+            'email' => 'required|email:rfc'
         ]);
 
         $status = Password::sendResetLink(
@@ -50,7 +50,7 @@ class PasswordResetController extends Controller
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email:rfc,dns',
+            'email' => 'required|email:rfc',
             'password' => 'required|min:8|max:100|confirmed',
         ]);
 
