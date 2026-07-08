@@ -57,12 +57,18 @@ Perintah di atas akan secara otomatis melakukan:
 1. Instalasi dependensi PHP (`composer install`).
 2. Membuat file konfigurasi `.env` dari `.env.example`.
 3. Menghasilkan Application Key (`php artisan key:generate`).
-4. Menjalankan migrasi database (`php artisan migrate --force`).
-5. Instalasi dependensi JavaScript (`npm install`).
-6. Membuat aset produksi awal (`npm run build`).
+4. Membuat tautan folder penyimpanan berkas (`php artisan storage:link`).
+5. Menjalankan migrasi database (`php artisan migrate --force`).
+6. Instalasi dependensi JavaScript (`npm install`).
+7. Membuat aset produksi awal (`npm run build`).
 
-### 4. Konfigurasi Database (Opsional)
-Jika Anda ingin menggunakan database MySQL atau lainnya, edit file `.env` yang baru dibuat:
+### 4. Konfigurasi Database & Seeder
+Secara default, instalasi otomatis di atas akan menjalankan migrasi database standar. Untuk mengisi database dengan data pengujian/dummy awal (seperti akun penulis/pembaca default, genre, dan buku contoh), jalankan perintah *seeding* berikut:
+```bash
+php artisan db:seed
+```
+
+Jika Anda ingin menggunakan database MySQL atau lainnya, silakan edit konfigurasi database pada file `.env`:
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -71,7 +77,7 @@ DB_DATABASE=bacayukz
 DB_USERNAME=root
 DB_PASSWORD=
 ```
-Setelah mengubah konfigurasi, jalankan ulang migrasi:
+Setelah menyimpan konfigurasi baru, jalankan migrasi segar beserta seeder:
 ```bash
 php artisan migrate:fresh --seed
 ```
